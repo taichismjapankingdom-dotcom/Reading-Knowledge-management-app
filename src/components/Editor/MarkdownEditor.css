@@ -1,0 +1,141 @@
+.custom-md-editor-container {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.custom-md-editor-container.view-mode {
+  padding: 32px 24px;
+}
+
+.custom-md-editor-container.edit-mode {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =========================================
+   VIEW MODE
+========================================= */
+
+.foldable-section {
+  margin-bottom: 8px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0;
+  user-select: none;
+  transition: opacity 0.2s ease;
+}
+
+.section-header:hover {
+  opacity: 0.8;
+}
+
+.section-chevron {
+  margin-top: 6px; /* align visually with heading text */
+  color: var(--text-secondary);
+}
+
+.section-title-rendered {
+  flex: 1;
+}
+
+/* Force headings inside the title to be inline/marginless */
+.section-title-rendered .wmde-markdown h1,
+.section-title-rendered .wmde-markdown h2,
+.section-title-rendered .wmde-markdown h3,
+.section-title-rendered .wmde-markdown h4,
+.section-title-rendered .wmde-markdown h5,
+.section-title-rendered .wmde-markdown h6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  line-height: 1.2 !important;
+}
+
+.section-content {
+  padding-left: 28px; /* Indent content under heading */
+  margin-top: 8px;
+}
+
+/* Base Reading Typography for View Mode */
+.view-mode .wmde-markdown {
+  font-family: var(--font-reading, system-ui, -apple-system, sans-serif);
+  font-size: clamp(1rem, 1.1vw + 0.5rem, 1.15rem);
+  line-height: 1.8;
+  background: transparent !important;
+}
+
+/* Remove default MDEditor borders and background in view mode */
+.view-mode .wmde-markdown {
+  background-color: transparent !important;
+}
+
+/* Ensure strong contrast across elements */
+.view-mode .wmde-markdown p,
+.view-mode .wmde-markdown ul,
+.view-mode .wmde-markdown ol,
+.view-mode .wmde-markdown li,
+.view-mode .wmde-markdown blockquote,
+.view-mode .wmde-markdown a {
+  color: inherit !important;
+}
+
+/* Bold must strictly be heavier weight, NOT a different color */
+.view-mode .wmde-markdown strong,
+.view-mode .wmde-markdown b {
+  font-weight: 700 !important;
+  color: inherit !important;
+}
+
+/* Distinctive blockquotes */
+.view-mode .wmde-markdown blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 16px;
+  opacity: 0.9;
+}
+
+/* =========================================
+   EDIT MODE (PURE TEXTAREA)
+========================================= */
+
+.editor-main-textarea-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pure-markdown-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 400px;
+  background: #ffffff;
+  color: #111111;
+  font-family: 'Courier New', Courier, monospace, 'Noto Sans JP';
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 16px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  resize: vertical;
+  outline: none;
+}
+
+.pure-markdown-textarea:focus {
+  border-color: var(--primary, #007aff);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.pure-markdown-textarea::-webkit-input-placeholder,
+.pure-markdown-textarea::placeholder {
+  color: #888888;
+}
+
+

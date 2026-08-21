@@ -1,0 +1,300 @@
+/* Centralized Note Theme Logic */
+
+/* Base Default + White App Appearance */
+:root {
+  --note-surface: #ffffff;
+  --note-text-primary: #111111;
+  --note-heading-predefined: #111111;
+  --note-accent: var(--primary, #007aff);
+  --note-muted: #666666;
+  --note-border: rgba(0,0,0,0.1);
+  --note-shadow-light: transparent;
+  --note-shadow-dark: rgba(0,0,0,0.05);
+}
+
+/* Default Theme + Non-White App Appearance */
+:root[data-theme="dark"] .theme-default,
+:root[data-theme="blue"] .theme-default,
+:root[data-theme="purple"] .theme-default,
+:root[data-theme="orange"] .theme-default,
+:root[data-theme="cyan"] .theme-default {
+  --note-text-primary: #ffffff;
+  --note-heading-predefined: #ffffff;
+  --note-muted: rgba(255,255,255,0.7);
+  --note-border: rgba(255,255,255,0.15);
+}
+
+/* -----------------------------
+   Paper Theme
+-------------------------------- */
+.theme-paper {
+  --note-surface: #fdfaf3; /* warm off-white */
+  --note-text-primary: #1a1a18; /* Near black ink */
+  --note-heading-predefined: #1a1a18;
+  --note-accent: #b05c5c; /* Muted red ink */
+  --note-muted: #757575;
+  --note-border: #e6e0d4;
+  --note-shadow-light: transparent;
+  --note-shadow-dark: rgba(0,0,0,0.08);
+  
+  /* Notebook ruled lines derived from text line-height */
+  --note-line-height: 1.8rem;
+}
+
+.view-mode.theme-paper {
+  background-color: var(--note-surface);
+  color: var(--note-text-primary);
+  /* The ruled background */
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent calc(var(--note-line-height) - 1px),
+    rgba(140, 160, 190, 0.25) calc(var(--note-line-height) - 1px),
+    rgba(140, 160, 190, 0.25) var(--note-line-height)
+  );
+  background-size: 100% var(--note-line-height);
+  background-attachment: local;
+  padding: var(--note-line-height) 24px 48px;
+  min-height: 100vh;
+  box-shadow: 
+    inset 4px 0 12px rgba(0,0,0,0.02),
+    0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* Ensure text strictly aligns to the baseline grid */
+.view-mode.theme-paper .wmde-markdown,
+.view-mode.theme-paper .editor-structured-data {
+  line-height: var(--note-line-height);
+  font-size: 1rem;
+}
+
+.view-mode.theme-paper .wmde-markdown p,
+.view-mode.theme-paper .wmde-markdown li,
+.view-mode.theme-paper .wmde-markdown blockquote {
+  line-height: var(--note-line-height);
+  margin-bottom: var(--note-line-height);
+}
+
+
+/* -----------------------------
+   Neumorphic Theme
+-------------------------------- */
+.theme-neumorphic {
+  /* Using the existing #e0e5ec */
+  --note-surface: #e0e5ec;
+  --note-text-primary: #008b8b; /* Dark cyan that is actually readable on light gray */
+  --note-heading-predefined: #4a5568; /* Dark gray for headings instead of unreadable white */
+  --note-accent: #007aff;
+  --note-muted: #718096;
+  --note-border: transparent;
+  --note-shadow-light: rgba(255,255,255,0.7);
+  --note-shadow-dark: rgba(163,177,198,0.6);
+}
+
+body[data-theme="dark"] .theme-neumorphic {
+  --note-surface: #2d3748;
+  --note-text-primary: #38bdf8; /* Bright cyan for dark mode */
+  --note-heading-predefined: #ffffff;
+  --note-shadow-light: rgba(255,255,255,0.05);
+  --note-shadow-dark: rgba(0,0,0,0.3);
+}
+
+.view-mode.theme-neumorphic {
+  background-color: var(--note-surface);
+  color: var(--note-text-primary);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 
+    6px 6px 12px var(--note-shadow-dark),
+    -6px -6px 12px var(--note-shadow-light);
+}
+
+.theme-neumorphic .foldable-heading-wrapper {
+  background: var(--note-surface);
+  box-shadow: 
+    4px 4px 8px var(--note-shadow-dark),
+    -4px -4px 8px var(--note-shadow-light);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.theme-neumorphic .foldable-heading-wrapper:active {
+  box-shadow: 
+    inset 4px 4px 8px var(--note-shadow-dark),
+    inset -4px -4px 8px var(--note-shadow-light);
+}
+
+.theme-neumorphic .foldable-content {
+  padding: 16px;
+  background: var(--note-surface);
+  border-radius: 12px;
+  box-shadow: 
+    inset 4px 4px 8px var(--note-shadow-dark),
+    inset -4px -4px 8px var(--note-shadow-light);
+  margin-bottom: 24px;
+}
+
+/* -----------------------------
+   Writing with a Pen Theme
+-------------------------------- */
+.theme-pen {
+  --note-surface: #f4f1ea; /* High-quality warm paper */
+  --note-text-primary: #1e293b; /* Fountain-pen navy/dark slate */
+  --note-heading-predefined: #0f172a;
+  --note-accent: #0284c7; /* Blue ink accent */
+  --note-muted: #475569;
+  --note-border: #e2e8f0;
+  --note-shadow-light: transparent;
+  --note-shadow-dark: rgba(0,0,0,0.06);
+  --note-line-height: 2rem; /* Generous spacing for handwriting */
+  
+  /* Use a systemic handwriting font with safe fallbacks. Includes Japanese handwriting fallbacks. */
+  --font-pen: "Caveat", "Klee One", "Chalkboard SE", "Comic Sans MS", "Bradley Hand", cursive, sans-serif;
+}
+
+.view-mode.theme-pen {
+  background-color: var(--note-surface);
+  color: var(--note-text-primary);
+  background-image: 
+    repeating-linear-gradient(
+      transparent,
+      transparent calc(var(--note-line-height) - 1px),
+      rgba(0, 0, 0, 0.08) calc(var(--note-line-height) - 1px),
+      rgba(0, 0, 0, 0.08) var(--note-line-height)
+    );
+  background-size: 100% var(--note-line-height);
+  background-attachment: local;
+  padding: calc(var(--note-line-height) / 2) 32px 48px;
+  min-height: 100vh;
+  box-shadow: 
+    inset 0 0 40px rgba(0,0,0,0.03),
+    inset 6px 0 12px rgba(0,0,0,0.02);
+  border-left: 2px solid rgba(0,0,0,0.04);
+}
+
+.theme-pen .wmde-markdown,
+.theme-pen .editor-structured-data {
+  font-family: var(--font-pen);
+  font-size: 1.15rem;
+  line-height: var(--note-line-height);
+}
+
+.theme-pen .wmde-markdown h1,
+.theme-pen .wmde-markdown h2,
+.theme-pen .wmde-markdown h3,
+.theme-pen .foldable-heading-content {
+  font-family: var(--font-pen);
+}
+
+.theme-pen .wmde-markdown p,
+.theme-pen .wmde-markdown li,
+.theme-pen .wmde-markdown blockquote {
+  line-height: var(--note-line-height);
+  margin-bottom: var(--note-line-height);
+}
+
+/* -----------------------------
+   Foldable Markdown CSS
+-------------------------------- */
+.foldable-heading-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  padding: 4px 0;
+}
+
+.foldable-heading-wrapper:hover {
+  background: rgba(128, 128, 128, 0.05);
+}
+
+.foldable-indicator {
+  margin-right: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.foldable-heading-content {
+  flex: 1;
+}
+
+/* Remove default heading margins inside foldable headings */
+.foldable-heading-content h1,
+.foldable-heading-content h2,
+.foldable-heading-content h3,
+.foldable-heading-content h4,
+.foldable-heading-content h5,
+.foldable-heading-content h6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--note-text-primary);
+}
+
+.foldable-content {
+  overflow: hidden;
+}
+
+.markdown-block {
+  color: var(--note-text-primary);
+}
+
+/* Color integrations for standard elements */
+.wmde-markdown {
+  color: var(--note-text-primary);
+}
+.wmde-markdown h1,
+.wmde-markdown h2,
+.wmde-markdown h3 {
+  color: var(--note-text-primary);
+}
+.wmde-markdown a {
+  color: var(--note-accent);
+}
+.wmde-markdown blockquote {
+  border-left-color: var(--note-accent);
+  color: var(--note-muted);
+}
+
+/* Edit Mode Textarea Themes */
+.edit-mode.theme-default .pure-markdown-textarea {
+  color: #111111;
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.1);
+}
+
+:root[data-theme="dark"] .edit-mode.theme-default .pure-markdown-textarea {
+  color: #f1f1f1;
+  background: #1e1e1e;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.edit-mode.theme-paper .pure-markdown-textarea {
+  color: var(--note-text-primary);
+  background: var(--note-surface);
+  border-color: var(--note-border);
+}
+
+.edit-mode.theme-neumorphic .pure-markdown-textarea {
+  color: var(--note-text-primary);
+  background: var(--note-surface);
+  border: none;
+  box-shadow: 
+    inset 4px 4px 8px var(--note-shadow-dark),
+    inset -4px -4px 8px var(--note-shadow-light);
+}
+
+.edit-mode.theme-pen .pure-markdown-textarea {
+  color: var(--note-text-primary);
+  background: var(--note-surface);
+  border: 1px solid rgba(0,0,0,0.05);
+  font-family: var(--font-pen);
+  font-size: 1.15rem;
+  line-height: var(--note-line-height);
+  padding: 16px 24px;
+}

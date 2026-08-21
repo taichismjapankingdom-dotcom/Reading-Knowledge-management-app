@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "bookshelf": "本棚",
+    "reading": "読書中",
+    "library": "ライブラリ",
+    "queue": "読みたい本",
+    "statistics": "統計",
+    "settings": "設定"
+  },
+  "bookshelf": {
+    "title": "本棚",
+    "tabs": {
+      "all": "すべて",
+      "reading": "読書中",
+      "read": "読了",
+      "queue": "読みたい本"
+    }
+  },
+  "notes": {
+    "edit": "ノートを編集",
+    "insights": "ノートと考察",
+    "empty_quotes": "お気に入りの名言はまだありません。以下から追加してください。",
+    "quote_placeholder": "「心に残る言葉...」",
+    "page_placeholder": "ページ / 位置",
+    "add_quote": "名言を追加",
+    "empty_words": "新しい単語はまだ記録されていません。",
+    "word_placeholder": "単語 または フレーズ",
+    "meaning_placeholder": "意味 / メモ",
+    "add_word": "単語を追加",
+    "sections": {
+      "summary": "要約",
+      "important_concepts": "重要な概念",
+      "things_i_learnt": "学んだこと",
+      "how_i_can_apply_this": "実践への応用",
+      "favorite_passages": "心に残る一節",
+      "favorite_quotes": "お気に入りの名言",
+      "new_words": "新しい単語",
+      "themes": "テーマ",
+      "scenes_i_loved": "好きなシーン"
+    }
+  },
+  "library": {
+    "title": "ライブラリ",
+    "subtitle": "あなたの恒久的な知識。"
+  },
+  "reading": {
+    "title": "読書中",
+    "subtitle": "続きから読み始めましょう。"
+  },
+  "queue": {
+    "title": "読みたい本",
+    "subtitle": "これから探求したい本や論文。"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "アプリの設定。",
+    "appearance": "外観",
+    "language": "言語",
+    "theme_light": "ライト",
+    "theme_dark": "ダーク",
+    "theme_blue": "ブルー"
+  },
+  "common": {
+    "search": "ライブラリを検索...",
+    "add_book": "本を追加"
+  }
+}

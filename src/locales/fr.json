@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "bookshelf": "Bibliothèque",
+    "reading": "En cours",
+    "library": "Terminés",
+    "queue": "À lire",
+    "statistics": "Statistiques",
+    "settings": "Paramètres"
+  },
+  "bookshelf": {
+    "title": "Ma Bibliothèque",
+    "tabs": {
+      "all": "Tout",
+      "reading": "En cours de lecture",
+      "read": "Terminé",
+      "queue": "À lire"
+    }
+  },
+  "notes": {
+    "edit": "Modifier les notes",
+    "insights": "Notes & Réflexions",
+    "empty_quotes": "Aucune citation favorite. Ajoutez-en une ci-dessous.",
+    "quote_placeholder": "« Un extrait mémorable... »",
+    "page_placeholder": "Page / Emplacement",
+    "add_quote": "Ajouter Citation",
+    "empty_words": "Aucun nouveau mot enregistré.",
+    "word_placeholder": "Mot ou Expression",
+    "meaning_placeholder": "Signification / Note",
+    "add_word": "Ajouter Mot",
+    "sections": {
+      "summary": "Résumé",
+      "important_concepts": "Concepts Clés",
+      "things_i_learnt": "Ce que j'ai appris",
+      "how_i_can_apply_this": "Comment l'appliquer",
+      "favorite_passages": "Extraits Marquants",
+      "favorite_quotes": "Citations Préférées",
+      "new_words": "Nouveaux Mots",
+      "themes": "Thèmes",
+      "scenes_i_loved": "Scènes Favorites"
+    }
+  },
+  "library": {
+    "title": "Bibliothèque",
+    "subtitle": "Votre savoir permanent."
+  },
+  "reading": {
+    "title": "En lecture",
+    "subtitle": "Reprenez là où vous en étiez."
+  },
+  "queue": {
+    "title": "À lire",
+    "subtitle": "Livres et articles que vous souhaitez explorer."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Préférences de l'application.",
+    "appearance": "Apparence",
+    "language": "Langue",
+    "theme_light": "Clair",
+    "theme_dark": "Sombre",
+    "theme_blue": "Bleu"
+  },
+  "common": {
+    "search": "Rechercher dans la bibliothèque...",
+    "add_book": "Ajouter un livre"
+  }
+}

@@ -1,0 +1,246 @@
+.add-book-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.add-book-modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  padding: 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 8px;
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 24px 0;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+[data-theme="dark"] .modal-tabs, [data-theme="blue"] .modal-tabs {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.modal-tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.modal-tabs button.active {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.search-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.glass-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-family: var(--font-reading);
+  font-size: 1rem;
+  outline: none;
+}
+
+.glass-input:focus {
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.glass-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.glass-btn:hover {
+  background: var(--accent-light);
+}
+
+.glass-btn.primary {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+}
+
+.glass-btn.primary:hover {
+  opacity: 0.9;
+  background: var(--accent-color);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.error-text {
+  color: #ff3b30;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.result-card {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.result-card img {
+  width: 60px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.placeholder-cover {
+  width: 60px;
+  height: 90px;
+  background: var(--accent-light);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-color);
+}
+
+.placeholder-cover.large {
+  width: 120px;
+  height: 180px;
+}
+
+.result-info h4 {
+  margin-bottom: 4px;
+}
+
+.result-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.selected-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.preview-header {
+  display: flex;
+  gap: 24px;
+}
+
+.preview-cover {
+  width: 120px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.preview-details h3 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.preview-details .author {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.preview-details .meta {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.text-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.text-btn:hover {
+  text-decoration: underline;
+}
+
+.add-actions p {
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .glass-btn {
+  flex: 1;
+  min-width: 140px;
+}

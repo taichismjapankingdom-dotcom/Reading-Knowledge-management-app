@@ -1,0 +1,172 @@
+/* Structured Data Sections CSS */
+
+.structured-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-prompt {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-family: var(--font-reading);
+  margin-bottom: 16px;
+}
+
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.structured-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.card-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  resize: vertical;
+  min-height: 80px;
+  font-family: var(--font-reading);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  outline: none;
+}
+
+.card-textarea.small {
+  min-height: 60px;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.card-input {
+  background: transparent;
+  border: none;
+  font-family: var(--font-reading);
+  font-size: 0.95rem;
+  outline: none;
+  flex: 1;
+  min-width: 0; /* Critical for flex containers on mobile so it doesn't push parents */
+}
+
+.card-input.main-input {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.delete-card {
+  opacity: 0.5;
+  padding: 4px;
+}
+
+.delete-card:hover {
+  opacity: 1;
+  color: #ff3b30;
+  background: transparent;
+}
+
+.add-card-btn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-card-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+/* =========================================
+   THEME 1: DEFAULT
+========================================= */
+.theme-default .structured-card {
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.theme-default .card-textarea,
+.theme-default .card-input {
+  color: #000000;
+}
+:root[data-theme='dark'] .theme-default .structured-card {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.05);
+}
+:root[data-theme='dark'] .theme-default .card-textarea,
+:root[data-theme='dark'] .theme-default .card-input {
+  color: #ffffff;
+}
+
+/* =========================================
+   THEME 2: PAPER
+========================================= */
+.theme-paper .structured-card {
+  background: transparent;
+  /* Instead of a digital card, make it look like a hand-drawn bracket or section */
+  border-left: 3px solid rgba(163, 194, 219, 0.8);
+  border-radius: 0;
+  padding-left: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 0;
+}
+.theme-paper .card-textarea,
+.theme-paper .card-input {
+  color: #000000;
+  font-family: "Georgia", serif;
+}
+.theme-paper .card-footer {
+  border-top: 1px dashed rgba(0,0,0,0.1);
+}
+
+/* =========================================
+   THEME 3: NEUMORPHIC
+========================================= */
+.theme-neumorphic .structured-card {
+  background: #e0e5ec;
+  border-radius: 12px;
+  box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.5), 
+              inset -4px -4px 8px rgba(255,255,255, 0.5);
+}
+.theme-neumorphic .card-textarea,
+.theme-neumorphic .card-input {
+  color: #2d3748;
+}
+.theme-neumorphic .add-card-btn {
+  box-shadow: 4px 4px 8px rgba(163,177,198,0.5), 
+             -4px -4px 8px rgba(255,255,255, 0.5);
+  border: none;
+  background: #e0e5ec;
+}
+.theme-neumorphic .add-card-btn:active {
+  box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.5), 
+              inset -4px -4px 8px rgba(255,255,255, 0.5);
+}

@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import './styles/theme.css';
+@import './styles/glass.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden; /* App shell will handle scrolling internally */
+  overflow-x: hidden; /* Hard constraint to prevent any component from causing horizontal scroll */
+}
+
+/* Custom Scrollbar for inner scrollable areas */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 3px;
+  opacity: 0.3;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-primary);
+  opacity: 0.5;
+}
+
+/* Global utility classes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

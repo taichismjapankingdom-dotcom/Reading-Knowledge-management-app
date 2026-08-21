@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "bookshelf": "Bookshelf",
+    "reading": "Reading",
+    "library": "Library",
+    "queue": "Queue",
+    "statistics": "Statistics",
+    "settings": "Settings"
+  },
+  "bookshelf": {
+    "title": "My Bookshelf",
+    "tabs": {
+      "all": "All",
+      "reading": "Currently Reading",
+      "read": "Read",
+      "queue": "Reading Queue"
+    }
+  },
+  "notes": {
+    "edit": "Edit Notes",
+    "insights": "Notes & Insights",
+    "empty_quotes": "No favorite quotes yet. Add one below.",
+    "quote_placeholder": "“A memorable passage...”",
+    "page_placeholder": "Page / Location",
+    "add_quote": "Add Quote",
+    "empty_words": "No new words recorded yet.",
+    "word_placeholder": "Word or Phrase",
+    "meaning_placeholder": "Meaning / Note",
+    "add_word": "Add Word",
+    "sections": {
+      "summary": "Summary",
+      "important_concepts": "Important Concepts",
+      "things_i_learnt": "Things I Learnt",
+      "how_i_can_apply_this": "How I Can Apply This",
+      "favorite_passages": "Favorite Passages",
+      "favorite_quotes": "Favorite Quotes",
+      "new_words": "New Words",
+      "themes": "Themes",
+      "scenes_i_loved": "Scenes I Loved"
+    }
+  },
+  "library": {
+    "title": "Library",
+    "subtitle": "Your permanent knowledge."
+  },
+  "reading": {
+    "title": "Reading Now",
+    "subtitle": "Pick up where you left off."
+  },
+  "queue": {
+    "title": "Reading Queue",
+    "subtitle": "Books and papers you want to explore."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "App preferences.",
+    "appearance": "Appearance",
+    "language": "Language",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_blue": "Blue"
+  },
+  "common": {
+    "search": "Search library...",
+    "add_book": "Add Book"
+  }
+}

@@ -1,0 +1,195 @@
+:root {
+  /* Default Light Glass */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-blur: blur(24px);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --accent-color: #007aff;
+  --accent-light: rgba(0, 122, 255, 0.15);
+  
+  --bg-overlay: rgba(255, 255, 255, 0.4);
+  
+  --font-reading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[data-theme="dark"] {
+  --glass-bg: rgba(20, 20, 22, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(24px);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --accent-color: #0a84ff;
+  --accent-light: rgba(10, 132, 255, 0.15);
+  
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="blue"] {
+  --glass-bg: rgba(10, 20, 40, 0.7);
+  --glass-border: rgba(100, 150, 255, 0.15);
+  --glass-blur: blur(24px);
+  --glass-shadow: 0 8px 32px rgba(0, 10, 30, 0.5);
+  --glass-highlight: inset 0 1px 0 rgba(100, 150, 255, 0.1);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #88aadd;
+  --accent-color: #4da6ff;
+  --accent-light: rgba(77, 166, 255, 0.15);
+  
+  --bg-overlay: rgba(5, 10, 25, 0.6);
+}
+
+[data-theme="purple"] {
+  --glass-bg: rgba(30, 10, 40, 0.7);
+  --glass-border: rgba(180, 100, 255, 0.15);
+  --glass-blur: blur(24px);
+  --glass-shadow: 0 8px 32px rgba(20, 0, 30, 0.5);
+  --glass-highlight: inset 0 1px 0 rgba(180, 100, 255, 0.1);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #cc88dd;
+  --accent-color: #b04dff;
+  --accent-light: rgba(176, 77, 255, 0.15);
+  
+  --bg-overlay: rgba(15, 5, 25, 0.6);
+}
+
+[data-theme="orange"] {
+  --glass-bg: rgba(40, 20, 10, 0.7);
+  --glass-border: rgba(255, 150, 100, 0.15);
+  --glass-blur: blur(24px);
+  --glass-shadow: 0 8px 32px rgba(30, 10, 0, 0.5);
+  --glass-highlight: inset 0 1px 0 rgba(255, 150, 100, 0.1);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #ddaa88;
+  --accent-color: #ff8c4d;
+  --accent-light: rgba(255, 140, 77, 0.15);
+  
+  --bg-overlay: rgba(25, 10, 5, 0.6);
+}
+
+[data-theme="cyan"] {
+  --glass-bg: rgba(10, 30, 30, 0.7);
+  --glass-border: rgba(100, 255, 255, 0.15);
+  --glass-blur: blur(24px);
+  --glass-shadow: 0 8px 32px rgba(0, 20, 20, 0.5);
+  --glass-highlight: inset 0 1px 0 rgba(100, 255, 255, 0.1);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #88dddd;
+  --accent-color: #4dffff;
+  --accent-light: rgba(77, 255, 255, 0.15);
+  
+  --bg-overlay: rgba(5, 20, 20, 0.6);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-reading);
+  color: var(--text-primary);
+  background: #000; /* Fallback */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App Background System */
+.app-background-layer {
+  position: fixed;
+  inset: -5%; /* Prevent blur edge bleed */
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
+  transition: background-image 0.8s ease-in-out;
+}
+
+.app-background-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: -1;
+  transition: background 0.8s ease-in-out;
+}
+
+/* Global Glass Panel Component */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+  transition: background 0.3s, border 0.3s;
+}
+
+.glass-btn {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-family: var(--font-reading);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.glass-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.glass-btn:active {
+  transform: translateY(0);
+}
+
+[data-theme="dark"] .glass-btn:hover, [data-theme="blue"] .glass-btn:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.glass-btn.primary {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+}
+
+.glass-btn.primary:hover {
+  background: var(--accent-color);
+  filter: brightness(1.1);
+}
+
+/* Shared App Layout */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  padding-bottom: 80px; /* Mobile bottom nav space */
+}
+
+@media (min-width: 769px) {
+  .main-content {
+    padding-bottom: 0;
+  }
+}
