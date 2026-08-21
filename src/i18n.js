@@ -17,6 +17,10 @@ i18n
     interpolation: {
       escapeValue: false, // React already safeguards from XSS
     },
+    parseMissingKeyHandler: (key) => {
+      console.warn(`[i18n] Missing translation key: ${key}`);
+      return key;
+    },
   });
 
 export default i18n;

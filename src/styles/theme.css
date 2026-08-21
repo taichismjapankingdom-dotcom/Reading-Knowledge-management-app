@@ -106,7 +106,31 @@ body {
   background-size: cover;
   background-position: center;
   z-index: -2;
-  transition: background-image 0.8s ease-in-out;
+  transition: background-image 0.8s ease-in-out, background 0.8s ease-in-out;
+}
+
+/* Global Gradient Presets */
+.app-background-layer.is-gradient {
+  inset: 0; /* No need to bleed for gradients */
+  background-size: 100% 100%;
+}
+.app-background-layer.is-gradient.gradient-midnight {
+  background: linear-gradient(135deg, #0d0a21 0%, #201335 100%);
+}
+.app-background-layer.is-gradient.gradient-ocean {
+  background: linear-gradient(135deg, #09203f 0%, #537895 100%);
+}
+.app-background-layer.is-gradient.gradient-sunset {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+.app-background-layer.is-gradient.gradient-purpleblue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.app-background-layer.is-gradient.gradient-forest {
+  background: linear-gradient(135deg, #114357 0%, #f29492 100%); /* Atmospheric */
+}
+.app-background-layer.is-gradient.gradient-pastel {
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
 }
 
 .app-background-overlay {

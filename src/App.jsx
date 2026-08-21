@@ -38,6 +38,7 @@ function App() {
   const theme = useSettingsStore((state) => state.theme);
   const language = useSettingsStore((state) => state.language);
   const background = useSettingsStore((state) => state.background);
+  const globalGradientPreset = useSettingsStore((state) => state.globalGradientPreset);
   const { i18n } = useTranslation();
 
   // Sync theme
@@ -52,14 +53,16 @@ function App() {
     }
   }, [language, i18n]);
 
+  const isGradient = background === 'gradient';
+
   return (
     <AuthProvider>
       <HashRouter>
         <div 
-          className="app-background-layer"
-          style={{ backgroundImage: `url(${BACKGROUNDS[background || 'nature']})` }}
+          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''}`}
+          style={!isGradient ? { backgroundImage: `url(${BACKGROUNDS[background || 'nature']})` } : {}}
         >
-          <div className="app-background-overlay"></div>
+          {!isGradient && <div className="app-background-overlay"></div>}
         </div>
         <AuthWrapper>
           <Routes>

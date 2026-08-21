@@ -18,7 +18,7 @@ export default function AppShell() {
   }, []);
 
   const NAV_ITEMS = [
-    { path: '/', icon: BookOpen, label: t('nav.bookshelf', 'Bookshelf') },
+    { path: '/', icon: BookOpen, label: t('nav.bookshelf') },
     { path: '/settings', icon: Settings, label: t('nav.settings') }
   ];
 

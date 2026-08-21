@@ -18,7 +18,12 @@ const BACKGROUNDS = [
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
-  const { language, theme, background, noteTheme, setLanguage, setTheme, setBackground, setNoteTheme } = useSettingsStore();
+  const { 
+    language, theme, background, noteTheme, 
+    noteGradientPreset, woodType, globalGradientPreset,
+    setLanguage, setTheme, setBackground, setNoteTheme,
+    setNoteGradientPreset, setWoodType, setGlobalGradientPreset 
+  } = useSettingsStore();
   const { repairMissingCovers } = useBooks();
   const [repairing, setRepairing] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -33,7 +38,7 @@ export default function Settings() {
     if (!file) return;
 
     const confirmed = window.confirm(
-      "Import Library Backup?\n\nThis will replace the current local library and settings on this device with the contents of the selected backup file.\n\nPress OK to Import and Replace, or Cancel to abort."
+      t('settings.import_confirm')
     );
 
     if (!confirmed) {
@@ -45,10 +50,10 @@ export default function Settings() {
     try {
       const text = await file.text();
       await importLibrary(text);
-      alert("Library successfully imported! The application will now reload.");
+      alert(t('settings.import_success'));
       window.location.reload();
     } catch (err) {
-      alert("Import failed: " + err.message);
+      alert(t('settings.import_failed') + err.message);
     } finally {
       setImporting(false);
       if (e.target) e.target.value = null; // reset input
@@ -68,53 +73,53 @@ export default function Settings() {
 
       <div className="settings-content">
         <section className="settings-section glass-panel">
-          <h2>Appearance</h2>
+          <h2>{t('settings.appearance')}</h2>
           
           <div className="setting-group">
-            <label>Theme (Glass Tint)</label>
+            <label>{t('settings.theme_glass_tint')}</label>
             <div className="button-group">
               <button 
                 className={`glass-btn ${theme === 'light' ? 'active' : ''}`}
                 onClick={() => setTheme('light')}
               >
-                Light
+                {t('settings.theme_light')}
               </button>
               <button 
                 className={`glass-btn ${theme === 'dark' ? 'active' : ''}`}
                 onClick={() => setTheme('dark')}
               >
-                Dark
+                {t('settings.theme_dark')}
               </button>
               <button 
                 className={`glass-btn ${theme === 'blue' ? 'active' : ''}`}
                 onClick={() => setTheme('blue')}
               >
-                Blue
+                {t('settings.theme_blue')}
               </button>
               <button 
                 className={`glass-btn ${theme === 'purple' ? 'active' : ''}`}
                 onClick={() => setTheme('purple')}
               >
-                Purple
+                {t('settings.theme_purple')}
               </button>
               <button 
                 className={`glass-btn ${theme === 'orange' ? 'active' : ''}`}
                 onClick={() => setTheme('orange')}
               >
-                Orange
+                {t('settings.theme_orange')}
               </button>
               <button 
                 className={`glass-btn ${theme === 'cyan' ? 'active' : ''}`}
                 onClick={() => setTheme('cyan')}
               >
-                Cyan
+                {t('settings.theme_cyan')}
               </button>
             </div>
           </div>
 
           <div className="setting-group">
-            <label>Atmospheric Background</label>
-            <p className="setting-hint">Choose a scene to set the mood for your reading room.</p>
+            <label>{t('settings.atmospheric_background')}</label>
+            <p className="setting-hint">{t('settings.bg_hint')}</p>
             <div className="background-gallery">
               {BACKGROUNDS.map(bg => (
                 <div 
@@ -138,94 +143,225 @@ export default function Settings() {
                   </AnimatePresence>
                 </div>
               ))}
+              <div 
+                className={`bg-preview-card ${background === 'gradient' ? 'active' : ''}`}
+                onClick={() => setBackground('gradient')}
+              >
+                <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' }} />
+                <div className="bg-name">{t('settings.bg_gradient') || 'Gradient'}</div>
+                <AnimatePresence>
+                  {background === 'gradient' && (
+                    <motion.div 
+                      className="bg-check"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                    >
+                      <Check size={16} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
+
+            <AnimatePresence>
+              {background === 'gradient' && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  style={{ overflow: 'hidden', marginTop: '16px' }}
+                >
+                  <label>{t('settings.bg_gradient_preset') || 'Gradient Preset'}</label>
+                  <div className="button-group" style={{ marginTop: '8px' }}>
+                    {[
+                      { id: 'midnight', label: 'Midnight', bg: 'linear-gradient(135deg, #0d0a21 0%, #201335 100%)' },
+                      { id: 'ocean', label: 'Ocean', bg: 'linear-gradient(135deg, #09203f 0%, #537895 100%)' },
+                      { id: 'sunset', label: 'Sunset', bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
+                      { id: 'purpleblue', label: 'Purple Blue', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                      { id: 'forest', label: 'Forest', bg: 'linear-gradient(135deg, #114357 0%, #f29492 100%)' },
+                      { id: 'pastel', label: 'Soft Pastel', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+                    ].map(preset => (
+                      <button
+                        key={preset.id}
+                        className={`glass-btn ${globalGradientPreset === preset.id ? 'active' : ''}`}
+                        onClick={() => setGlobalGradientPreset(preset.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <span style={{ display: 'inline-block', width: '16px', height: '16px', borderRadius: '50%', background: preset.bg, border: '1px solid rgba(255,255,255,0.2)' }} />
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
-
         <section className="settings-section glass-panel">
-          <h2>Language</h2>
+          <h2>{t('settings.language')}</h2>
           <div className="setting-group">
             <div className="button-group vertical">
               <button 
                 className={`glass-btn ${language === 'en' ? 'active' : ''}`}
                 onClick={() => handleLanguageChange('en')}
               >
-                English
+                {t('settings.language_en')}
               </button>
               <button 
                 className={`glass-btn ${language === 'ja' ? 'active' : ''}`}
                 onClick={() => handleLanguageChange('ja')}
               >
-                日本語 (Japanese)
+                {t('settings.language_ja')}
               </button>
               <button 
                 className={`glass-btn ${language === 'fr' ? 'active' : ''}`}
                 onClick={() => handleLanguageChange('fr')}
               >
-                Français (French)
+                {t('settings.language_fr')}
               </button>
             </div>
           </div>
         </section>
 
         <section className="settings-section glass-panel">
-          <h2>Notes</h2>
+          <h2>{t('settings.notes')}</h2>
           <div className="setting-group">
-            <label>Note Theme</label>
-            <p className="setting-hint">Choose the visual style of your note editing environment.</p>
+            <label>{t('settings.note_theme')}</label>
+            <p className="setting-hint">{t('settings.note_theme_hint')}</p>
             <div className="button-group vertical" style={{ gap: '12px', marginTop: '12px' }}>
               <button 
                 className={`glass-btn ${noteTheme === 'default' ? 'active' : ''}`}
                 onClick={() => setNoteTheme('default')}
                 style={{ textAlign: 'left', padding: '16px' }}
               >
-                <strong>Default</strong><br/>
-                <small>Clean white, minimalistic, excellent typography.</small>
+                <strong>{t('settings.note_theme_default')}</strong><br/>
+                <small>{t('settings.note_theme_default_desc')}</small>
               </button>
               <button 
                 className={`glass-btn ${noteTheme === 'paper' ? 'active' : ''}`}
                 onClick={() => setNoteTheme('paper')}
                 style={{ textAlign: 'left', padding: '16px' }}
               >
-                <strong>Paper</strong><br/>
-                <small>Warm off-white textured paper with horizontal ruled lines.</small>
+                <strong>{t('settings.note_theme_paper')}</strong><br/>
+                <small>{t('settings.note_theme_paper_desc')}</small>
               </button>
               <button 
                 className={`glass-btn ${noteTheme === 'neumorphic' ? 'active' : ''}`}
                 onClick={() => setNoteTheme('neumorphic')}
                 style={{ textAlign: 'left', padding: '16px' }}
               >
-                <strong>Neumorphic</strong><br/>
-                <small>Modern, soft extruded panels and inset shadows.</small>
+                <strong>{t('settings.note_theme_neumorphic')}</strong><br/>
+                <small>{t('settings.note_theme_neumorphic_desc')}</small>
               </button>
               <button 
                 className={`glass-btn ${noteTheme === 'pen' ? 'active' : ''}`}
                 onClick={() => setNoteTheme('pen')}
                 style={{ textAlign: 'left', padding: '16px' }}
               >
-                <strong>Writing with a Pen</strong><br/>
-                <small>Warm paper texture, handwritten typography, and ink colors.</small>
+                <strong>{t('settings.note_theme_pen')}</strong><br/>
+                <small>{t('settings.note_theme_pen_desc')}</small>
+              </button>
+              <button 
+                className={`glass-btn ${noteTheme === 'gradient' ? 'active' : ''}`}
+                onClick={() => setNoteTheme('gradient')}
+                style={{ textAlign: 'left', padding: '16px' }}
+              >
+                <strong>{t('settings.note_theme_gradient') || 'Gradient'}</strong><br/>
+                <small>{t('settings.note_theme_gradient_desc') || 'Modern soft blended colors.'}</small>
+              </button>
+              <button 
+                className={`glass-btn ${noteTheme === 'wood' ? 'active' : ''}`}
+                onClick={() => setNoteTheme('wood')}
+                style={{ textAlign: 'left', padding: '16px' }}
+              >
+                <strong>{t('settings.note_theme_wood') || 'Wooden Notes'}</strong><br/>
+                <small>{t('settings.note_theme_wood_desc') || 'Highly realistic tactile wood materials.'}</small>
               </button>
             </div>
+
+            <AnimatePresence>
+              {noteTheme === 'gradient' && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  style={{ overflow: 'hidden', marginTop: '16px' }}
+                >
+                  <label>{t('settings.note_gradient_preset') || 'Gradient Preset'}</label>
+                  <div className="button-group" style={{ marginTop: '8px' }}>
+                    {[
+                      { id: 'midnight', label: 'Midnight', bg: 'linear-gradient(135deg, #0d0a21 0%, #201335 100%)' },
+                      { id: 'ocean', label: 'Ocean', bg: 'linear-gradient(135deg, #09203f 0%, #537895 100%)' },
+                      { id: 'sunset', label: 'Sunset', bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
+                      { id: 'purpleblue', label: 'Purple Blue', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                      { id: 'forest', label: 'Forest', bg: 'linear-gradient(135deg, #114357 0%, #f29492 100%)' },
+                      { id: 'pastel', label: 'Soft Pastel', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+                    ].map(preset => (
+                      <button
+                        key={preset.id}
+                        className={`glass-btn ${noteGradientPreset === preset.id ? 'active' : ''}`}
+                        onClick={() => setNoteGradientPreset(preset.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <span style={{ display: 'inline-block', width: '16px', height: '16px', borderRadius: '50%', background: preset.bg, border: '1px solid rgba(255,255,255,0.2)' }} />
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {noteTheme === 'wood' && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  style={{ overflow: 'hidden', marginTop: '16px' }}
+                >
+                  <label>{t('settings.wood_type') || 'Wood Type'}</label>
+                  <div className="button-group" style={{ marginTop: '8px' }}>
+                    <button
+                      className={`glass-btn ${woodType === 'natural' ? 'active' : ''}`}
+                      onClick={() => setWoodType('natural')}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <span style={{ display: 'inline-block', width: '16px', height: '16px', borderRadius: '4px', background: '#d9af85', border: '1px solid rgba(0,0,0,0.2)' }} />
+                      {t('settings.wood_natural') || 'Natural Wood'}
+                    </button>
+                    <button
+                      className={`glass-btn ${woodType === 'birch' ? 'active' : ''}`}
+                      onClick={() => setWoodType('birch')}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <span style={{ display: 'inline-block', width: '16px', height: '16px', borderRadius: '4px', background: '#f5f1ec', border: '1px solid rgba(0,0,0,0.2)' }} />
+                      {t('settings.wood_birch') || 'White Birch'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
         <section className="settings-section glass-panel">
-          <h2>Data Management</h2>
+          <h2>{t('settings.data_management')}</h2>
           <div className="setting-group">
-            <label>Export & Import</label>
-            <p className="setting-hint">Back up your entire library, notes, and settings to a JSON file, or restore them from a previous backup.</p>
+            <label>{t('settings.export_import')}</label>
+            <p className="setting-hint">{t('settings.export_import_hint')}</p>
             <div className="button-group" style={{ marginTop: '12px', gap: '12px' }}>
               <button 
                 className="glass-btn primary" 
                 onClick={() => exportLibrary()}
               >
-                Export Library
+                {t('settings.export_library')}
               </button>
               
               <label className={`glass-btn ${importing ? 'disabled' : ''}`} style={{ cursor: 'pointer', textAlign: 'center', margin: 0 }}>
-                {importing ? 'Importing...' : 'Import Library'}
+                {importing ? t('settings.importing') : t('settings.import_library')}
                 <input 
                   type="file" 
                   accept=".json" 
@@ -255,18 +391,18 @@ export default function Settings() {
                   syncEngine.isInitializing = false; 
                   await syncEngine.initialize();
                   
-                  alert('Force sync complete! UI will refresh.');
+                  alert(t('settings.force_sync_complete'));
                 }}
               >
-                Force Cloud Sync (Recovery)
+                {t('settings.force_sync')}
               </button>
-              <p className="setting-hint" style={{ marginTop: '8px' }}>Use this if some cloud data is missing due to a network interruption.</p>
+              <p className="setting-hint" style={{ marginTop: '8px' }}>{t('settings.force_sync_hint')}</p>
             </div>
           </div>
           
           <div className="setting-group" style={{ marginTop: '24px' }}>
-            <label>Account</label>
-            <p className="setting-hint">Sign out to stop synchronizing data on this device.</p>
+            <label>{t('settings.account')}</label>
+            <p className="setting-hint">{t('settings.account_hint')}</p>
             <button 
               className="glass-btn" 
               style={{ marginTop: '12px', color: '#ff3b30' }}
@@ -275,16 +411,16 @@ export default function Settings() {
                 window.location.reload();
               }}
             >
-              Sign Out
+              {t('settings.sign_out')}
             </button>
           </div>
         </section>
 
         <section className="settings-section glass-panel">
-          <h2>Library Tools</h2>
+          <h2>{t('settings.library_tools')}</h2>
           <div className="setting-group">
-            <label>Cover Resolution Engine</label>
-            <p className="setting-hint">Automatically scan your library and attempt to find high-quality covers for books that are currently using placeholders.</p>
+            <label>{t('settings.cover_resolution')}</label>
+            <p className="setting-hint">{t('settings.cover_resolution_hint')}</p>
             <button 
               className="glass-btn primary" 
               onClick={async () => {
@@ -295,14 +431,14 @@ export default function Settings() {
               disabled={repairing}
               style={{ marginTop: 12, minWidth: 200 }}
             >
-              {repairing ? 'Repairing Covers...' : 'Repair Missing Covers'}
+              {repairing ? t('settings.repairing_covers') : t('settings.repair_covers')}
             </button>
           </div>
         </section>
       </div>
 
       <div style={{ marginTop: '32px', paddingBottom: '32px', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem' }}>
-        <p>Build: markdown-fix-2026-08-17</p>
+        <p>{t('settings.build_info')}</p>
       </div>
 
     </div>

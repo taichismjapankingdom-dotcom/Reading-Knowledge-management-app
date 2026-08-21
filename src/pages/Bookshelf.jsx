@@ -53,11 +53,11 @@ export default function Bookshelf() {
     <div className="bookshelf-page">
       <header className="bookshelf-header glass-panel">
         <div className="header-top">
-          <h1 className="bookshelf-title">{t('bookshelf.title', 'My Bookshelf')}</h1>
+          <h1 className="bookshelf-title">{t('bookshelf.title')}</h1>
           <button className="glass-btn primary add-book-btn" onClick={() => setIsAddModalOpen(true)}>
             <Plus size={18} className="add-icon" />
-            <span className="add-label-full">{t('common.add_book', 'Add Book')}</span>
-            <span className="add-label-short">{t('common.add', 'Add')}</span>
+            <span className="add-label-full">{t('common.add_book')}</span>
+            <span className="add-label-short">{t('common.add')}</span>
           </button>
         </div>
 
@@ -87,7 +87,7 @@ export default function Bookshelf() {
             <SearchIcon size={16} />
             <input 
               type="text" 
-              placeholder="Search library..." 
+              placeholder={t('common.search')} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -97,17 +97,17 @@ export default function Bookshelf() {
 
       <div className="bookshelf-content">
         {loading ? (
-          <div className="empty-state">Loading your books...</div>
+          <div className="empty-state">{t('bookshelf.empty.loading')}</div>
         ) : filteredBooks.length > 0 ? (
           <BookGrid books={filteredBooks} onBookClick={setSelectedBook} />
         ) : (
           <div className="empty-state glass-panel">
-            {activeTab === 'reading' && <p>You're not reading anything at the moment.</p>}
-            {activeTab === 'queue' && <p>Your reading queue is empty.</p>}
-            {activeTab === 'library' && <p>Finished books will appear here.</p>}
-            {activeTab === 'all' && <p>Your library is empty.</p>}
+            {activeTab === 'reading' && <p>{t('bookshelf.empty.reading')}</p>}
+            {activeTab === 'queue' && <p>{t('bookshelf.empty.queue')}</p>}
+            {activeTab === 'library' && <p>{t('bookshelf.empty.library')}</p>}
+            {activeTab === 'all' && <p>{t('bookshelf.empty.all')}</p>}
             <button className="glass-btn primary mt-4" onClick={() => setIsAddModalOpen(true)}>
-              Add a Book
+              {t('common.add_a_book')}
             </button>
           </div>
         )}

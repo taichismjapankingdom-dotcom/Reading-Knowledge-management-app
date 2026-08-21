@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, BookOpen, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './BookCard.css';
 
 export default function BookCard({ book, onClick }) {
+  const { t } = useTranslation();
   // progress is 0-100
   const progressWidth = `${book.progress}%`;
 
@@ -40,11 +42,11 @@ export default function BookCard({ book, onClick }) {
         <p className="book-author text-truncate">{book.author}</p>
         
         <div className="book-stats">
-          <div className="stat-item" title="Reading Streak">
+          <div className="stat-item" title={t('book_card.reading_streak')}>
             <TrendingUp size={14} />
-            <span>{book.streak} days</span>
+            <span>{book.streak} {t('book_card.days')}</span>
           </div>
-          <div className="stat-item" title="Estimated Time Remaining">
+          <div className="stat-item" title={t('book_card.estimated_time_remaining')}>
             <Clock size={14} />
             <span>{book.etr}</span>
           </div>

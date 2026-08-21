@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import FoldableMarkdown from './FoldableMarkdown';
+import { useTranslation } from 'react-i18next';
 
 import { useSettingsStore } from '../../store/useSettingsStore';
 import './MarkdownEditor.css';
@@ -23,7 +24,10 @@ This is *italic*.
 - Item two`;
 
 export default function MarkdownEditor({ initialValue, placeholder, onChange, mode = 'live', children, bookId = 'unknown' }) {
+  const { t } = useTranslation();
   const noteTheme = useSettingsStore(s => s.noteTheme) || 'default';
+  const noteGradientPreset = useSettingsStore(s => s.noteGradientPreset) || 'ocean';
+  const woodType = useSettingsStore(s => s.woodType) || 'natural';
   
   // Trace the exact runtime Note data as requested
   useEffect(() => {
@@ -37,16 +41,23 @@ export default function MarkdownEditor({ initialValue, placeholder, onChange, mo
   
   const [showDetails, setShowDetails] = useState(false);
 
+  const getThemeClasses = () => {
+    let classes = `theme-${noteTheme}`;
+    if (noteTheme === 'gradient') classes += ` gradient-preset-${noteGradientPreset}`;
+    if (noteTheme === 'wood') classes += ` wood-type-${woodType}`;
+    return classes;
+  };
+
   if (mode === 'preview') {
     return (
-      <div className={`custom-md-editor-container view-mode theme-${noteTheme}`}>
+      <div className={`custom-md-editor-container view-mode ${getThemeClasses()}`}>
         <div className="view-mode-toolbar" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
           <button 
             className="glass-btn small" 
             onClick={() => setShowDetails(!showDetails)}
             style={{ fontSize: '12px', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            {showDetails ? 'Headings only' : 'Show details'}
+            {showDetails ? t('editor.headings_only', 'Headings only') : t('editor.show_details', 'Show details')}
           </button>
         </div>
         <div className="wmde-markdown">
@@ -59,13 +70,13 @@ export default function MarkdownEditor({ initialValue, placeholder, onChange, mo
 
   // Edit Mode: Single, perfectly accurate native-like editing area without drift overlays
   return (
-    <div className={`custom-md-editor-container edit-mode theme-${noteTheme}`}>
+    <div className={`custom-md-editor-container edit-mode ${getThemeClasses()}`}>
       <div className="editor-main-textarea-wrapper">
         <textarea
           className="pure-markdown-textarea"
           value={initialValue}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder || 'Start writing...'}
+          placeholder={placeholder || t('editor.start_writing', 'Start writing...')}
           spellCheck={false}
         />
       </div>

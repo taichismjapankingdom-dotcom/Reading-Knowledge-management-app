@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Camera, Book as BookIcon, Loader2 } from 'lucide-react';
 import { searchBooks, fetchByISBN } from '../../utils/metadataAPI';
 import { Html5Qrcode } from 'html5-qrcode';
+import { useTranslation } from 'react-i18next';
 import './AddBookModal.css';
 
 export default function AddBookModal({ isOpen, onClose, onAdd }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('search'); // 'search', 'isbn', 'scan'
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -76,7 +78,7 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
             const res = await fetchByISBN(decodedText);
             setResults([res]);
           } catch (err) {
-            setError('Failed to fetch book from scanned ISBN.');
+            setError(t('add_book.scan_failed'));
           } finally {
             setLoading(false);
           }
@@ -86,7 +88,7 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
         }
       );
     } catch (err) {
-      setError("Camera access denied or unavailable.");
+      setError(t('add_book.scan_error'));
     }
   };
 
@@ -120,19 +122,19 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
         exit={{ y: 50, opacity: 0 }}
       >
         <button className="close-modal-btn" onClick={onClose}><X size={20} /></button>
-        <h2>Add Book</h2>
+        <h2>{t('add_book.title')}</h2>
         
         <div className="modal-tabs">
-          <button className={activeTab === 'search' ? 'active' : ''} onClick={() => setActiveTab('search')}>Search</button>
-          <button className={activeTab === 'isbn' ? 'active' : ''} onClick={() => setActiveTab('isbn')}>ISBN</button>
-          <button className={activeTab === 'scan' ? 'active' : ''} onClick={() => setActiveTab('scan')}><Camera size={16} /> Scan</button>
+          <button className={activeTab === 'search' ? 'active' : ''} onClick={() => setActiveTab('search')}>{t('add_book.search')}</button>
+          <button className={activeTab === 'isbn' ? 'active' : ''} onClick={() => setActiveTab('isbn')}>{t('add_book.isbn')}</button>
+          <button className={activeTab === 'scan' ? 'active' : ''} onClick={() => setActiveTab('scan')}><Camera size={16} /> {t('add_book.scan')}</button>
         </div>
 
         {activeTab !== 'scan' && !selectedBook && (
           <form onSubmit={handleSearch} className="search-form">
             <input 
               type="text" 
-              placeholder={activeTab === 'search' ? "Title or Author" : "Enter ISBN (e.g. 978...)"}
+              placeholder={activeTab === 'search' ? t('add_book.search_placeholder') : t('add_book.isbn_placeholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="glass-input"
@@ -183,16 +185,16 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                <div className="preview-details">
                  <h3>{selectedBook.title}</h3>
                  <p className="author">{selectedBook.author}</p>
-                 <p className="meta">{selectedBook.publicationYear} • {selectedBook.pages} pages</p>
-                 <button className="text-btn" onClick={() => setSelectedBook(null)}>Back to results</button>
+                 <p className="meta">{selectedBook.publicationYear} • {selectedBook.pages} {t('add_book.pages')}</p>
+                 <button className="text-btn" onClick={() => setSelectedBook(null)}>{t('add_book.back_to_results')}</button>
                </div>
             </div>
             <div className="add-actions">
-              <p>Add to:</p>
+              <p>{t('add_book.add_to')}</p>
               <div className="action-buttons">
-                <button className="glass-btn" onClick={() => handleConfirmAdd('reading')}>Currently Reading</button>
-                <button className="glass-btn" onClick={() => handleConfirmAdd('queue')}>Reading Queue</button>
-                <button className="glass-btn" onClick={() => handleConfirmAdd('library')}>Finished Library</button>
+                <button className="glass-btn" onClick={() => handleConfirmAdd('reading')}>{t('add_book.add_reading')}</button>
+                <button className="glass-btn" onClick={() => handleConfirmAdd('queue')}>{t('add_book.add_queue')}</button>
+                <button className="glass-btn" onClick={() => handleConfirmAdd('library')}>{t('add_book.add_library')}</button>
               </div>
             </div>
           </div>

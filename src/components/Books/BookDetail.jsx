@@ -140,13 +140,13 @@ export default function BookDetail({ book, onClose, onMove }) {
           <div className="top-bar-left">
             <button className="icon-btn glass-btn" onClick={onClose}>
               <ChevronRight size={24} style={{ transform: 'rotate(180deg)' }} /> 
-              <span className="action-label">{t('common.back', 'Back')}</span>
+              <span className="action-label">{t('common.back')}</span>
             </button>
           </div>
           
           <div className="top-bar-center">
              <button className="glass-btn primary edit-note-btn" onClick={() => setEditorMode('half')}>
-               <PenTool size={16} /> <span className="action-label">{t('notes.edit', 'Edit Note')}</span>
+               <PenTool size={16} /> <span className="action-label">{t('notes.edit')}</span>
              </button>
           </div>
 
@@ -165,10 +165,10 @@ export default function BookDetail({ book, onClose, onMove }) {
                   exit={{ opacity: 0, y: -10 }}
                 >
                 <button className="menu-item" onClick={() => fileInputRef.current?.click()}>
-                  <Camera size={16} /> Change Cover
+                  <Camera size={16} /> {t('book_detail.change_cover')}
                 </button>
                 <button className="menu-item destructive" onClick={() => { setShowDeleteConfirm(true); setShowOptions(false); }}>
-                  <Trash2 size={16} /> Delete Entry
+                  <Trash2 size={16} /> {t('book_detail.delete_entry')}
                 </button>
               </motion.div>
             )}
@@ -193,11 +193,11 @@ export default function BookDetail({ book, onClose, onMove }) {
               exit={{ opacity: 0 }}
             >
               <div className="delete-confirm-dialog glass-panel">
-                <h3>Delete this book?</h3>
-                <p>This will remove the book and its associated notes and reading data from your library.</p>
+                <h3>{t('book_detail.delete_confirm_title')}</h3>
+                <p>{t('book_detail.delete_confirm_desc')}</p>
                 <div className="dialog-actions">
-                  <button className="glass-btn" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
-                  <button className="glass-btn primary" style={{ background: '#ff3b30' }} onClick={handleDelete}>Delete</button>
+                  <button className="glass-btn" onClick={() => setShowDeleteConfirm(false)}>{t('book_detail.cancel')}</button>
+                  <button className="glass-btn primary" style={{ background: '#ff3b30' }} onClick={handleDelete}>{t('book_detail.delete')}</button>
                 </div>
               </div>
             </motion.div>
@@ -220,25 +220,25 @@ export default function BookDetail({ book, onClose, onMove }) {
             
             <div className="detail-stats">
               <div className="detail-stat-box">
-                <span className="stat-label">Progress</span>
+                <span className="stat-label">{t('book_detail.progress')}</span>
                 <span className="stat-value">{book.progress}%</span>
               </div>
               <div className="detail-stat-box">
-                <span className="stat-label">Type</span>
+                <span className="stat-label">{t('book_detail.type')}</span>
                 <span className="stat-value" style={{ textTransform: 'capitalize' }}>{book.type}</span>
               </div>
             </div>
             
             <div className="detail-actions" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-               <button className="read-btn" onClick={() => {}}>Continue Reading <ChevronRight size={16} /></button>
+               <button className="read-btn" onClick={() => {}}>{t('book_detail.continue_reading')} <ChevronRight size={16} /></button>
                {onMove && book.status !== 'reading' && (
-                 <button className="glass-btn" onClick={() => onMove(book, 'reading')}>Move to Reading</button>
+                 <button className="glass-btn" onClick={() => onMove(book, 'reading')}>{t('book_detail.move_to_reading')}</button>
                )}
                {onMove && book.status !== 'library' && (
-                 <button className="glass-btn" onClick={() => onMove(book, 'library')}>Move to Library</button>
+                 <button className="glass-btn" onClick={() => onMove(book, 'library')}>{t('book_detail.move_to_library')}</button>
                )}
                {onMove && book.status !== 'queue' && (
-                 <button className="glass-btn" onClick={() => onMove(book, 'queue')}>Move to Queue</button>
+                 <button className="glass-btn" onClick={() => onMove(book, 'queue')}>{t('book_detail.move_to_queue')}</button>
                )}
             </div>
           </div>
@@ -246,12 +246,12 @@ export default function BookDetail({ book, onClose, onMove }) {
 
         <div className="book-detail-notes">
           <div className="notes-header">
-            <h3>{t('notes.insights', 'Notes & Insights')}</h3>
+            <h3>{t('notes.insights')}</h3>
           </div>
           
           <div className="notes-preview-container">
             {loading ? (
-              <div style={{ color: 'var(--text-secondary)' }}>Loading notes...</div>
+              <div style={{ color: 'var(--text-secondary)' }}>{t('book_detail.loading_notes')}</div>
             ) : (
               <div className="notes-preview-fade">
                 <MarkdownEditor 
@@ -279,7 +279,7 @@ export default function BookDetail({ book, onClose, onMove }) {
             transition={{ type: "spring", stiffness: 250, damping: 25 }}
           >
             <div className="workspace-header">
-              <h3>{book.title} - Notes</h3>
+              <h3>{book.title} - {t('book_detail.notes_title')}</h3>
               <div className="workspace-actions">
                 <button 
                   className="icon-btn" 

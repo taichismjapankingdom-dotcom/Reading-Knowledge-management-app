@@ -9,10 +9,16 @@ export const useSettingsStore = create(
       theme: 'light',
       background: 'nature', // default background
       noteTheme: 'default', // default note theme
+      noteGradientPreset: 'ocean',
+      woodType: 'natural',
+      globalGradientPreset: 'midnight',
       setLanguage: (lang) => set({ language: lang }),
       setTheme: (theme) => set({ theme }),
       setBackground: (bg) => set({ background: bg }),
       setNoteTheme: (noteTheme) => set({ noteTheme }),
+      setNoteGradientPreset: (preset) => set({ noteGradientPreset: preset }),
+      setWoodType: (woodType) => set({ woodType }),
+      setGlobalGradientPreset: (preset) => set({ globalGradientPreset: preset }),
     }),
     {
       name: 'readmind-settings',
@@ -33,14 +39,20 @@ useSettingsStore.subscribe((state, prevState) => {
     state.language !== prevState.language || 
     state.theme !== prevState.theme || 
     state.background !== prevState.background || 
-    state.noteTheme !== prevState.noteTheme
+    state.noteTheme !== prevState.noteTheme ||
+    state.noteGradientPreset !== prevState.noteGradientPreset ||
+    state.woodType !== prevState.woodType ||
+    state.globalGradientPreset !== prevState.globalGradientPreset
   ) {
     console.log(`[Preferences] Local preferences changed (e.g. theme: ${state.theme}).`);
     const preferences = {
       language: state.language,
       theme: state.theme,
       background: state.background,
-      noteTheme: state.noteTheme
+      noteTheme: state.noteTheme,
+      noteGradientPreset: state.noteGradientPreset,
+      woodType: state.woodType,
+      globalGradientPreset: state.globalGradientPreset
     };
     syncEngine.queueMutation('user_preferences', 'UPSERT', { preferences }, 'settings');
   }
