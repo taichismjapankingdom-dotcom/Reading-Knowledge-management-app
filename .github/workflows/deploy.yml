@@ -37,6 +37,9 @@ jobs:
       - name: Build
         # Uses the repository name as the base path for GitHub Pages
         run: npm run build -- --base=/${{ github.event.repository.name }}/
+        env:
+          VITE_SUPABASE_URL: https://wwetwjfbexxbmjeprvku.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZXR3amZiZXh4Ym1qZXBydmt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzIxNTIsImV4cCI6MjEwMTYwODE1Mn0.BrS6YM4euBFgUxEJFPU88rVarf8poh1-GBGYv0d50Qk
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
