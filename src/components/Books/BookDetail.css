@@ -132,6 +132,7 @@
   padding: 32px 40px;
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Prevent flex children from resisting wrapping */
 }
 
 .notes-header {
@@ -144,10 +145,12 @@
 .notes-preview-container {
   flex: 1;
   position: relative;
+  min-width: 0; /* Allow inner content to shrink and wrap */
 }
 
 .notes-preview-fade {
   position: relative;
+  min-width: 0;
 }
 
 .fade-overlay {

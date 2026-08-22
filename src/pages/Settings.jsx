@@ -20,9 +20,9 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const { 
     language, theme, background, noteTheme, 
-    noteGradientPreset, woodType, globalGradientPreset,
+    noteGradientPreset, woodType, globalGradientPreset, darkAcademiaPreset,
     setLanguage, setTheme, setBackground, setNoteTheme,
-    setNoteGradientPreset, setWoodType, setGlobalGradientPreset 
+    setNoteGradientPreset, setWoodType, setGlobalGradientPreset, setDarkAcademiaPreset 
   } = useSettingsStore();
   const { repairMissingCovers } = useBooks();
   const [repairing, setRepairing] = useState(false);
