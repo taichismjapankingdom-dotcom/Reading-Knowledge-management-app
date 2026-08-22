@@ -162,6 +162,25 @@ export default function Settings() {
                   )}
                 </AnimatePresence>
               </div>
+              <div 
+                className={`bg-preview-card ${background === 'dark_academia' ? 'active' : ''}`}
+                onClick={() => setBackground('dark_academia')}
+              >
+                <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=600&auto=format&fit=crop" alt="Dark Academia" />
+                <div className="bg-name">{t('settings.bg_dark_academia') || 'Dark Academia'}</div>
+                <AnimatePresence>
+                  {background === 'dark_academia' && (
+                    <motion.div 
+                      className="bg-check"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                    >
+                      <Check size={16} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             <AnimatePresence>
@@ -189,6 +208,37 @@ export default function Settings() {
                         style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span style={{ display: 'inline-block', width: '16px', height: '16px', borderRadius: '50%', background: preset.bg, border: '1px solid rgba(255,255,255,0.2)' }} />
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {background === 'dark_academia' && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  style={{ overflow: 'hidden', marginTop: '16px' }}
+                >
+                  <label>{t('settings.bg_dark_academia_preset') || 'Architecture Variant'}</label>
+                  <div className="button-group vertical" style={{ marginTop: '8px' }}>
+                    {[
+                      { id: 'gothic_library', label: t('settings.da_gothic_library') || 'Gothic Library' },
+                      { id: 'cathedral_study', label: t('settings.da_cathedral_study') || 'Cathedral Study Hall' },
+                      { id: 'old_corridor', label: t('settings.da_old_corridor') || 'Old University Corridor' },
+                      { id: 'candlelit_room', label: t('settings.da_candlelit_room') || 'Candlelit Reading Room' },
+                      { id: 'rainy_night', label: t('settings.da_rainy_night') || 'Rainy Academic Night' },
+                    ].map(preset => (
+                      <button
+                        key={preset.id}
+                        className={`glass-btn ${darkAcademiaPreset === preset.id ? 'active' : ''}`}
+                        onClick={() => setDarkAcademiaPreset(preset.id)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 16px' }}
+                      >
                         {preset.label}
                       </button>
                     ))}

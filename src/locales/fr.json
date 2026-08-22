@@ -127,7 +127,14 @@
     "note_gradient_preset": "Préréglage de dégradé",
     "wood_type": "Type de bois",
     "wood_natural": "Bois naturel",
-    "wood_birch": "Bouleau blanc"
+    "wood_birch": "Bouleau blanc",
+    "bg_dark_academia": "Dark Academia",
+    "bg_dark_academia_preset": "Variante architecturale",
+    "da_gothic_library": "Bibliothèque gothique",
+    "da_cathedral_study": "Salle d'étude de la cathédrale",
+    "da_old_corridor": "Vieux couloir universitaire",
+    "da_candlelit_room": "Salle de lecture à la bougie",
+    "da_rainy_night": "Nuit académique pluvieuse"
   },
   "book_detail": {
     "change_cover": "Changer la couverture",

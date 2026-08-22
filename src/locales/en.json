@@ -127,7 +127,14 @@
     "note_gradient_preset": "Gradient Preset",
     "wood_type": "Wood Type",
     "wood_natural": "Natural Wood",
-    "wood_birch": "White Birch"
+    "wood_birch": "White Birch",
+    "bg_dark_academia": "Dark Academia",
+    "bg_dark_academia_preset": "Architecture Variant",
+    "da_gothic_library": "Gothic Library",
+    "da_cathedral_study": "Cathedral Study Hall",
+    "da_old_corridor": "Old University Corridor",
+    "da_candlelit_room": "Candlelit Reading Room",
+    "da_rainy_night": "Rainy Academic Night"
   },
   "book_detail": {
     "change_cover": "Change Cover",

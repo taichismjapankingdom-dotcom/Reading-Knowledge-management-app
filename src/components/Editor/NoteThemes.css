@@ -412,6 +412,8 @@ body[data-theme="dark"] .theme-neumorphic {
   padding: 4px; /* Space for the bark border */
   border-radius: 12px;
   position: relative;
+  z-index: 1;
+  isolation: isolate;
   box-shadow: 0 12px 30px rgba(0,0,0,0.3);
 }
 

@@ -127,7 +127,14 @@
     "note_gradient_preset": "グラデーション設定",
     "wood_type": "木材の種類",
     "wood_natural": "ナチュラルウッド",
-    "wood_birch": "白樺"
+    "wood_birch": "白樺",
+    "bg_dark_academia": "ダークアカデミア",
+    "bg_dark_academia_preset": "建築バリエーション",
+    "da_gothic_library": "ゴシック様式の図書館",
+    "da_cathedral_study": "大聖堂の自習室",
+    "da_old_corridor": "古い大学の廊下",
+    "da_candlelit_room": "キャンドルの灯る読書室",
+    "da_rainy_night": "雨の夜の大学"
   },
   "book_detail": {
     "change_cover": "表紙を変更",

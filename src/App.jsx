@@ -20,6 +20,14 @@ const BACKGROUNDS = {
   abstract: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'
 };
 
+const DARK_ACADEMIA_BACKGROUNDS = {
+  gothic_library: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=2000&auto=format&fit=crop',
+  cathedral_study: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2000&auto=format&fit=crop',
+  old_corridor: 'https://images.unsplash.com/photo-1509315410940-202d57271926?q=80&w=2000&auto=format&fit=crop',
+  candlelit_room: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?q=80&w=2000&auto=format&fit=crop',
+  rainy_night: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=2000&auto=format&fit=crop'
+};
+
 function AuthWrapper({ children }) {
   const { user, loading } = useAuth();
   
@@ -39,12 +47,18 @@ function App() {
   const language = useSettingsStore((state) => state.language);
   const background = useSettingsStore((state) => state.background);
   const globalGradientPreset = useSettingsStore((state) => state.globalGradientPreset);
+  const darkAcademiaPreset = useSettingsStore((state) => state.darkAcademiaPreset);
   const { i18n } = useTranslation();
 
   // Sync theme
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Sync background type for contextual glassmorphism
+  useEffect(() => {
+    document.documentElement.setAttribute('data-background', background === 'dark_academia' ? 'dark_academia' : background === 'gradient' ? 'gradient' : 'photo');
+  }, [background]);
 
   // Sync language
   useEffect(() => {
@@ -54,15 +68,19 @@ function App() {
   }, [language, i18n]);
 
   const isGradient = background === 'gradient';
+  const isDarkAcademia = background === 'dark_academia';
+  const bgUrl = isDarkAcademia 
+    ? DARK_ACADEMIA_BACKGROUNDS[darkAcademiaPreset || 'gothic_library'] 
+    : BACKGROUNDS[background || 'nature'];
 
   return (
     <AuthProvider>
       <HashRouter>
         <div 
-          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''}`}
-          style={!isGradient ? { backgroundImage: `url(${BACKGROUNDS[background || 'nature']})` } : {}}
+          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''} ${isDarkAcademia ? 'is-dark-academia' : ''}`}
+          style={!isGradient ? { backgroundImage: `url(${bgUrl})` } : {}}
         >
-          {!isGradient && <div className="app-background-overlay"></div>}
+          {!isGradient && <div className={`app-background-overlay ${isDarkAcademia ? 'dark-academia-overlay' : ''}`}></div>}
         </div>
         <AuthWrapper>
           <Routes>
