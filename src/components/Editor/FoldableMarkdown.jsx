@@ -99,9 +99,9 @@ function FoldableSection({ node, links, expandAllSignal }) {
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
+            animate={{ height: 'auto', opacity: 1, transitionEnd: { overflow: 'visible' } }}
+            exit={{ height: 0, opacity: 0, overflow: 'hidden' }}
             transition={{ duration: 0.2 }}
             className="foldable-content"
           >
@@ -119,9 +119,11 @@ export default function FoldableMarkdown({ markdown, expandAllSignal }) {
   // Aggressive runtime normalization:
   // 1. Strip escaped asterisks that legacy WYSIWYG editors inserted
   // 2. Strip zero-width spaces inserted by some IMEs
+  // 3. Convert non-breaking spaces (U+00A0) to regular spaces so text can wrap
   const cleanMarkdown = markdown
     .replace(/\\\*/g, '*')
-    .replace(/[\u200B-\u200D\uFEFF]/g, '');
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\u00A0/g, ' ');
 
   const tokens = customMarked.lexer(cleanMarkdown, { gfm: true, breaks: true });
   

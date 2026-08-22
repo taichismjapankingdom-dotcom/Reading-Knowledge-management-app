@@ -29,15 +29,43 @@ export default function MarkdownEditor({ initialValue, placeholder, onChange, mo
   const noteGradientPreset = useSettingsStore(s => s.noteGradientPreset) || 'ocean';
   const woodType = useSettingsStore(s => s.woodType) || 'natural';
   
-  // Trace the exact runtime Note data as requested
+  const containerRef = React.useRef(null);
+
+  // Diagnostic to locate exact overflowing element
   useEffect(() => {
-    if (initialValue !== undefined) {
-      console.log(`[MarkdownDebug] Book ID: ${bookId}`);
-      console.log(`[MarkdownDebug] View renderer mounted: ${mode === 'preview' ? 'ReactMarkdown' : 'Plain Textarea'}`);
-      console.log(`[MarkdownDebug] SOURCE MODE: ${mode === 'preview' ? 'HARDCODED' : 'ACTUAL NOTE'}`);
-      console.log(`[MarkdownDebug] SOURCE STRING:`, mode === 'preview' ? HARDCODED_TEST : initialValue);
+    if (mode === 'preview' && containerRef.current) {
+      setTimeout(() => {
+        const root = containerRef.current;
+        const overflowing = [...root.querySelectorAll('*')].filter(el => el.scrollWidth > el.clientWidth + 1);
+        if (overflowing.length > 0) {
+          console.error('[NoteOverflow] FOUND OVERFLOWING ELEMENTS:', overflowing.length);
+          overflowing.forEach(el => {
+            const style = getComputedStyle(el);
+            console.log('[NoteOverflow] Element:', el.tagName, el.className, {
+              clientWidth: el.clientWidth,
+              scrollWidth: el.scrollWidth,
+              text: el.textContent?.slice(0, 100),
+              css: {
+                display: style.display,
+                whiteSpace: style.whiteSpace,
+                wordBreak: style.wordBreak,
+                overflowWrap: style.overflowWrap,
+                width: style.width,
+                minWidth: style.minWidth,
+                maxWidth: style.maxWidth,
+                overflowX: style.overflowX,
+                padding: style.padding,
+                margin: style.margin,
+                boxSizing: style.boxSizing
+              }
+            });
+            // highlight the exact offending element visually
+            el.style.outline = '3px solid red';
+          });
+        }
+      }, 500); // wait for render
     }
-  }, [mode, initialValue, bookId]);
+  }, [mode, initialValue]);
   
   const [showDetails, setShowDetails] = useState(false);
 
@@ -50,7 +78,7 @@ export default function MarkdownEditor({ initialValue, placeholder, onChange, mo
 
   if (mode === 'preview') {
     return (
-      <div className={`custom-md-editor-container view-mode ${getThemeClasses()}`}>
+      <div className={`custom-md-editor-container view-mode ${getThemeClasses()}`} ref={containerRef}>
         <div className="view-mode-toolbar" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
           <button 
             className="glass-btn small" 

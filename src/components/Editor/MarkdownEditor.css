@@ -91,6 +91,19 @@
   white-space: normal;
 }
 
+/* Allow code blocks and tables to scroll internally */
+.view-mode .wmde-markdown pre {
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: pre;
+}
+
+.view-mode .wmde-markdown table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 /* Remove default MDEditor borders and background in view mode */
 .view-mode .wmde-markdown {
   background-color: transparent !important;

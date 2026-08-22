@@ -166,7 +166,7 @@ export default function Settings() {
                 className={`bg-preview-card ${background === 'dark_academia' ? 'active' : ''}`}
                 onClick={() => setBackground('dark_academia')}
               >
-                <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=600&auto=format&fit=crop" alt="Dark Academia" />
+                <div style={{ width: '100%', height: '100%' }} className="css_gothic_library" />
                 <div className="bg-name">{t('settings.bg_dark_academia') || 'Dark Academia'}</div>
                 <AnimatePresence>
                   {background === 'dark_academia' && (
@@ -237,8 +237,9 @@ export default function Settings() {
                         key={preset.id}
                         className={`glass-btn ${darkAcademiaPreset === preset.id ? 'active' : ''}`}
                         onClick={() => setDarkAcademiaPreset(preset.id)}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 16px' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 16px', gap: '10px' }}
                       >
+                        <span className={`css_${preset.id}`} style={{ display: 'inline-block', minWidth: '20px', height: '20px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.3)' }} />
                         {preset.label}
                       </button>
                     ))}

@@ -236,10 +236,7 @@ body[data-theme="dark"] .theme-neumorphic {
   color: var(--note-text-primary);
 }
 
-.foldable-content {
-  overflow: hidden;
-}
-
+/* .foldable-content overflow is now managed by framer-motion */
 .markdown-block {
   color: var(--note-text-primary);
 }

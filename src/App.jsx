@@ -21,11 +21,11 @@ const BACKGROUNDS = {
 };
 
 const DARK_ACADEMIA_BACKGROUNDS = {
-  gothic_library: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=2000&auto=format&fit=crop',
-  cathedral_study: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2000&auto=format&fit=crop',
-  old_corridor: 'https://images.unsplash.com/photo-1509315410940-202d57271926?q=80&w=2000&auto=format&fit=crop',
-  candlelit_room: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?q=80&w=2000&auto=format&fit=crop',
-  rainy_night: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=2000&auto=format&fit=crop'
+  gothic_library: 'css_gothic_library',
+  cathedral_study: 'css_cathedral_study',
+  old_corridor: 'css_old_corridor',
+  candlelit_room: 'css_candlelit_room',
+  rainy_night: 'css_rainy_night'
 };
 
 function AuthWrapper({ children }) {
@@ -77,10 +77,10 @@ function App() {
     <AuthProvider>
       <HashRouter>
         <div 
-          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''} ${isDarkAcademia ? 'is-dark-academia' : ''}`}
-          style={!isGradient ? { backgroundImage: `url(${bgUrl})` } : {}}
+          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''} ${isDarkAcademia ? 'is-dark-academia ' + bgUrl : ''}`}
+          style={!isGradient && !isDarkAcademia ? { backgroundImage: `url(${bgUrl})` } : {}}
         >
-          {!isGradient && <div className={`app-background-overlay ${isDarkAcademia ? 'dark-academia-overlay' : ''}`}></div>}
+          {!isGradient && !isDarkAcademia && <div className="app-background-overlay"></div>}
         </div>
         <AuthWrapper>
           <Routes>

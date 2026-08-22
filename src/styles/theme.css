@@ -239,3 +239,51 @@ body {
   --text-primary: #ffffff;
   --text-secondary: #c0b8b0; /* Warmer secondary text */
 }
+
+/* =========================================
+   DARK ACADEMIA SYNTHETIC ARCHITECTURE
+========================================= */
+
+.app-background-layer.is-dark-academia {
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.css_gothic_library {
+  background: 
+    radial-gradient(ellipse at center, rgba(139, 69, 19, 0.4) 0%, rgba(30, 20, 15, 0.95) 70%),
+    repeating-linear-gradient(90deg, rgba(20, 10, 5, 0.9) 0%, rgba(20, 10, 5, 0.9) 4%, rgba(0, 0, 0, 0) 4%, rgba(0, 0, 0, 0) 12%),
+    repeating-linear-gradient(0deg, rgba(15, 8, 5, 0.8) 0%, rgba(15, 8, 5, 0.8) 2%, rgba(0, 0, 0, 0) 2%, rgba(0, 0, 0, 0) 15%),
+    linear-gradient(to bottom, #110a08, #2b1810);
+}
+
+.css_cathedral_study {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(120, 130, 140, 0.3) 0%, rgba(10, 15, 25, 0.95) 60%),
+    linear-gradient(to bottom, rgba(5, 5, 10, 0.9), rgba(5, 5, 10, 0.4)),
+    repeating-linear-gradient(135deg, rgba(30, 35, 45, 0.2) 0%, rgba(30, 35, 45, 0.2) 2%, transparent 2%, transparent 10%),
+    repeating-linear-gradient(45deg, rgba(20, 25, 35, 0.3) 0%, rgba(20, 25, 35, 0.3) 2%, transparent 2%, transparent 10%),
+    #05080f;
+}
+
+.css_old_corridor {
+  background:
+    radial-gradient(circle at 50% 60%, rgba(80, 90, 70, 0.4) 0%, rgba(15, 20, 15, 0.95) 60%),
+    linear-gradient(to right, rgba(10, 15, 10, 0.9) 0%, transparent 30%, transparent 70%, rgba(10, 15, 10, 0.9) 100%),
+    linear-gradient(to bottom, rgba(5, 10, 5, 0.95) 0%, transparent 20%, transparent 80%, rgba(5, 10, 5, 0.95) 100%),
+    #0d1410;
+}
+
+.css_candlelit_room {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(200, 100, 20, 0.25) 0%, rgba(80, 20, 5, 0.4) 20%, rgba(10, 5, 5, 0.98) 70%),
+    linear-gradient(135deg, #050302 0%, #1a0a05 100%);
+}
+
+.css_rainy_night {
+  background:
+    radial-gradient(ellipse at top left, rgba(60, 90, 110, 0.3) 0%, rgba(10, 15, 25, 0.95) 80%),
+    repeating-linear-gradient(-30deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 15px),
+    #080c14;
+}

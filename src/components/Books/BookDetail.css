@@ -19,7 +19,7 @@
   flex-direction: column;
   position: relative;
   overflow-y: auto; /* Allow vertical scroll for mobile! */
-  overflow-x: hidden;
+  /* removed overflow-x: hidden to prevent silent clipping */
 }
 
 .detail-top-bar {
@@ -249,7 +249,7 @@
 .workspace-editor-area {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  /* removed overflow-x: hidden to prevent silent clipping */
   display: flex;
   flex-direction: column;
   padding: 16px;
