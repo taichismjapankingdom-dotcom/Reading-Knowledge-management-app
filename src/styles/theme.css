@@ -215,6 +215,7 @@ body {
 @media (min-width: 769px) {
   .main-content {
     padding-bottom: 0;
+  }
 }
 
 /* Contextual Overrides for Dark Academia */
