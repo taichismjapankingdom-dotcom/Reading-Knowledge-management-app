@@ -222,41 +222,4 @@ body {
     padding-bottom: 0;
   }
 }
-
-/* Lowest layout level */
-  --app-bg-color: #121010;
-  
-  /* Intermediate panels */
-  --glass-bg: #1F1B1B;
-  --glass-border: rgba(220, 200, 170, 0.15);
-  --glass-blur: blur(8px);
-  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-  --glass-highlight: inset 0 1px 0 rgba(220, 200, 170, 0.05);
-  
-  /* Modals and popovers */
-  --modal-bg: #362D2C;
-  
-  /* Text colors matching standard DA aesthetic (antique whites and faded golds) */
-  --text-primary: #EBE5CE; /* Antique white */
-  --text-secondary: #C8B89E; /* Faded gold / dark parchment */
-  --accent-color: #D4AF37; /* Gold accent */
-  --accent-light: rgba(212, 175, 55, 0.15);
-}
-
-:root[data-background="dark_academia"][data-theme="light"] {
-  /* Force dark academia colors regardless of light/dark theme switch because it's a specific aesthetic */
-  --glass-bg: #1F1B1B;
-  --glass-blur: blur(8px);
-  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-  --text-primary: #EBE5CE;
-  --text-secondary: #C8B89E;
-}
-
-:root[data-background="dark_academia"][data-theme="dark"] {
-  --glass-bg: #1F1B1B;
-  --glass-blur: blur(8px);
-  --glass-border: rgba(220, 200, 170, 0.15);
-  --glass-highlight: inset 0 1px 0 rgba(220, 200, 170, 0.05);
-  --text-primary: #EBE5CE;
-  --text-secondary: #C8B89E;
-}
+

@@ -201,14 +201,6 @@ export default function Settings() {
               )}
             </AnimatePresence>
 
-                        />
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </section>
 
