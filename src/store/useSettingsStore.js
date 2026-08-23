@@ -12,7 +12,6 @@ export const useSettingsStore = create(
       noteGradientPreset: 'ocean',
       woodType: 'natural',
       globalGradientPreset: 'midnight',
-      darkAcademiaPreset: 'gothic_library',
       setLanguage: (lang) => set({ language: lang }),
       setTheme: (theme) => set({ theme }),
       setBackground: (bg) => set({ background: bg }),
@@ -20,7 +19,6 @@ export const useSettingsStore = create(
       setNoteGradientPreset: (preset) => set({ noteGradientPreset: preset }),
       setWoodType: (woodType) => set({ woodType }),
       setGlobalGradientPreset: (preset) => set({ globalGradientPreset: preset }),
-      setDarkAcademiaPreset: (preset) => set({ darkAcademiaPreset: preset }),
     }),
     {
       name: 'readmind-settings',
@@ -44,8 +42,7 @@ useSettingsStore.subscribe((state, prevState) => {
     state.noteTheme !== prevState.noteTheme ||
     state.noteGradientPreset !== prevState.noteGradientPreset ||
     state.woodType !== prevState.woodType ||
-    state.globalGradientPreset !== prevState.globalGradientPreset ||
-    state.darkAcademiaPreset !== prevState.darkAcademiaPreset
+    state.globalGradientPreset !== prevState.globalGradientPreset
   ) {
     console.log(`[Preferences] Local preferences changed (e.g. theme: ${state.theme}).`);
     const preferences = {
@@ -55,8 +52,7 @@ useSettingsStore.subscribe((state, prevState) => {
       noteTheme: state.noteTheme,
       noteGradientPreset: state.noteGradientPreset,
       woodType: state.woodType,
-      globalGradientPreset: state.globalGradientPreset,
-      darkAcademiaPreset: state.darkAcademiaPreset
+      globalGradientPreset: state.globalGradientPreset
     };
     syncEngine.queueMutation('user_preferences', 'UPSERT', { preferences }, 'settings');
   }

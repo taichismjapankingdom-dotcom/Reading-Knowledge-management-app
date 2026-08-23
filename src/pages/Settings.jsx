@@ -7,19 +7,7 @@ import { Check } from 'lucide-react';
 import { exportLibrary, importLibrary } from '../utils/dataTransfer';
 import { supabase } from '../lib/supabase';
 
-import bgGothicLibrary from '../assets/dark-academia/gothic_library.jpg';
-import bgCathedralStudy from '../assets/dark-academia/cathedral_study.jpg';
-import bgOldCorridor from '../assets/dark-academia/old_corridor.jpg';
-import bgCandlelitRoom from '../assets/dark-academia/candlelit_room.jpg';
-import bgRainyNight from '../assets/dark-academia/rainy_night.jpg';
 
-const DARK_ACADEMIA_BACKGROUNDS = {
-  gothic_library: bgGothicLibrary,
-  cathedral_study: bgCathedralStudy,
-  old_corridor: bgOldCorridor,
-  candlelit_room: bgCandlelitRoom,
-  rainy_night: bgRainyNight
-};
 
 import './Settings.css';
 
@@ -35,9 +23,9 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const { 
     language, theme, background, noteTheme, 
-    noteGradientPreset, woodType, globalGradientPreset, darkAcademiaPreset,
+    noteGradientPreset, woodType, globalGradientPreset,
     setLanguage, setTheme, setBackground, setNoteTheme,
-    setNoteGradientPreset, setWoodType, setGlobalGradientPreset, setDarkAcademiaPreset 
+    setNoteGradientPreset, setWoodType, setGlobalGradientPreset 
   } = useSettingsStore();
   const { repairMissingCovers } = useBooks();
   const [repairing, setRepairing] = useState(false);
@@ -177,25 +165,7 @@ export default function Settings() {
                   )}
                 </AnimatePresence>
               </div>
-              <div 
-                className={`bg-preview-card ${background === 'dark_academia' ? 'active' : ''}`}
-                onClick={() => setBackground('dark_academia')}
-              >
-                <img src={DARK_ACADEMIA_BACKGROUNDS[darkAcademiaPreset || 'gothic_library']} alt="Dark Academia" />
-                <div className="bg-name">{t('settings.bg_dark_academia') || 'Dark Academia'}</div>
-                <AnimatePresence>
-                  {background === 'dark_academia' && (
-                    <motion.div 
-                      className="bg-check"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                    >
-                      <Check size={16} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              
             </div>
 
             <AnimatePresence>
@@ -231,33 +201,6 @@ export default function Settings() {
               )}
             </AnimatePresence>
 
-            <AnimatePresence>
-              {background === 'dark_academia' && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  style={{ overflow: 'hidden', marginTop: '16px' }}
-                >
-                  <label>{t('settings.bg_dark_academia_preset') || 'Architecture Variant'}</label>
-                  <div className="button-group vertical" style={{ marginTop: '8px' }}>
-                    {[
-                      { id: 'gothic_library', label: t('settings.da_gothic_library') || 'Gothic Library' },
-                      { id: 'cathedral_study', label: t('settings.da_cathedral_study') || 'Cathedral Study Hall' },
-                      { id: 'old_corridor', label: t('settings.da_old_corridor') || 'Old University Corridor' },
-                      { id: 'candlelit_room', label: t('settings.da_candlelit_room') || 'Candlelit Reading Room' },
-                      { id: 'rainy_night', label: t('settings.da_rainy_night') || 'Rainy Academic Night' },
-                    ].map(preset => (
-                      <button
-                        key={preset.id}
-                        className={`glass-btn ${darkAcademiaPreset === preset.id ? 'active' : ''}`}
-                        onClick={() => setDarkAcademiaPreset(preset.id)}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 16px', gap: '10px' }}
-                      >
-                        <img 
-                          src={DARK_ACADEMIA_BACKGROUNDS[preset.id]} 
-                          style={{ minWidth: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.3)' }} 
-                          alt="" 
                         />
                         {preset.label}
                       </button>

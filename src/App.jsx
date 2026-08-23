@@ -20,20 +20,6 @@ const BACKGROUNDS = {
   abstract: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'
 };
 
-import bgGothicLibrary from './assets/dark-academia/gothic_library.jpg';
-import bgCathedralStudy from './assets/dark-academia/cathedral_study.jpg';
-import bgOldCorridor from './assets/dark-academia/old_corridor.jpg';
-import bgCandlelitRoom from './assets/dark-academia/candlelit_room.jpg';
-import bgRainyNight from './assets/dark-academia/rainy_night.jpg';
-
-const DARK_ACADEMIA_BACKGROUNDS = {
-  gothic_library: bgGothicLibrary,
-  cathedral_study: bgCathedralStudy,
-  old_corridor: bgOldCorridor,
-  candlelit_room: bgCandlelitRoom,
-  rainy_night: bgRainyNight
-};
-
 function AuthWrapper({ children }) {
   const { user, loading } = useAuth();
   
@@ -53,7 +39,6 @@ function App() {
   const language = useSettingsStore((state) => state.language);
   const background = useSettingsStore((state) => state.background);
   const globalGradientPreset = useSettingsStore((state) => state.globalGradientPreset);
-  const darkAcademiaPreset = useSettingsStore((state) => state.darkAcademiaPreset);
   const { i18n } = useTranslation();
 
   // Sync theme
@@ -63,23 +48,8 @@ function App() {
 
   // Sync background type for contextual glassmorphism
   useEffect(() => {
-    document.documentElement.setAttribute('data-background', background === 'dark_academia' ? 'dark_academia' : background === 'gradient' ? 'gradient' : 'photo');
+    document.documentElement.setAttribute('data-background', background === 'gradient' ? 'gradient' : 'photo');
   }, [background]);
-
-  // Log Dark Academia image failures during development
-  useEffect(() => {
-    if (background === 'dark_academia') {
-      const preset = darkAcademiaPreset || 'gothic_library';
-      const imgUrl = DARK_ACADEMIA_BACKGROUNDS[preset];
-      if (imgUrl) {
-        const img = new Image();
-        img.onerror = () => {
-          console.error(`[Background] Failed to load Dark Academia asset: ${preset}`);
-        };
-        img.src = imgUrl;
-      }
-    }
-  }, [background, darkAcademiaPreset]);
 
   // Sync language
   useEffect(() => {
@@ -89,19 +59,16 @@ function App() {
   }, [language, i18n]);
 
   const isGradient = background === 'gradient';
-  const isDarkAcademia = background === 'dark_academia';
-  const bgUrl = isDarkAcademia 
-    ? DARK_ACADEMIA_BACKGROUNDS[darkAcademiaPreset || 'gothic_library'] 
-    : BACKGROUNDS[background || 'nature'];
+  const bgUrl = BACKGROUNDS[background || 'nature'];
 
   return (
     <AuthProvider>
       <HashRouter>
         <div 
-          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''} ${isDarkAcademia ? 'is-dark-academia' : ''}`}
+          className={`app-background-layer ${isGradient ? 'is-gradient gradient-' + globalGradientPreset : ''}`}
           style={!isGradient ? { backgroundImage: `url(${bgUrl})` } : {}}
         >
-          {!isGradient && <div className={`app-background-overlay ${isDarkAcademia ? 'dark-academia-overlay' : ''}`}></div>}
+          {!isGradient && <div className="app-background-overlay"></div>}
         </div>
         <AuthWrapper>
           <Routes>

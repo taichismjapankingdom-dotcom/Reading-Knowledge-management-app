@@ -1,62 +1,49 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
-import localforage from 'localforage';
-import '../components/Editor/MarkdownEditor.css';
+import React from 'react';
 import FoldableMarkdown from '../components/Editor/FoldableMarkdown';
 
 export default function DiagnosticMarkdown() {
-  const [notes, setNotes] = useState([]);
-  const [selectedNote, setSelectedNote] = useState('');
-  
-  useEffect(() => {
-    const notesStore = localforage.createInstance({ name: 'ReadingKnowledgeApp', storeName: 'notes' });
-    const loadNotes = async () => {
-      const allNotes = [];
-      await notesStore.iterate((value, key) => {
-        allNotes.push({ key, value });
-      });
-      setNotes(allNotes);
-      
-      const targetNote = allNotes.find(n => n.value?.markdown?.includes('DXで経営戦略') || n.value?.markdown?.includes('**'));
-      if (targetNote) {
-        setSelectedNote(targetNote.value.markdown || targetNote.value);
-      } else if (allNotes.length > 0) {
-        setSelectedNote(allNotes[0].value.markdown || allNotes[0].value);
-      }
-    };
-    loadNotes();
-  }, []);
+  const testMarkdown = `
+# Hello World
+
+This is a diagnostic page to test **typography** and *styling*.
+
+## Section 1: Formatting
+- List item 1
+- List item 2
+
+> "This is a blockquote demonstrating aesthetic styling in reading mode."
+> — Author
+
+### Section 2: Code
+\`\`\`javascript
+function hello() {
+  console.log("Hello, Debugging!");
+}
+\`\`\`
+
+Here is a paragraph with [a link](https://example.com) to test anchor colors.
+`;
 
   return (
-    <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto', background: '#fff', color: '#000', minHeight: '100vh' }}>
-      <h1>Diagnostic Markdown Renderer</h1>
-      <select onChange={e => setSelectedNote(e.target.value)} style={{ width: '100%', marginBottom: 20 }}>
-        {notes.map(n => (
-          <option key={n.key} value={typeof n.value === 'string' ? n.value : n.value.markdown}>
-            {n.key}
-          </option>
-        ))}
-      </select>
-      <hr />
-      
-      <h2>1. Without Folding (Standard ReactMarkdown equivalent)</h2>
-      <div className="custom-md-editor-container view-mode theme-default">
-        <div 
-          className="wmde-markdown" 
-          style={{ marginTop: '24px' }} 
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(selectedNote || '', { gfm: true, breaks: true })) }}
-        />
-      </div>
-
-      <h2>2. With Folding (Current Pipeline)</h2>
-      <div className="custom-md-editor-container view-mode theme-default">
-        <FoldableMarkdown markdown={selectedNote || ''} />
-      </div>
-
-      <div style={{ marginTop: '48px', opacity: 0.5 }}>
-        <h2>Raw String Passed To Renderer:</h2>
-        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{selectedNote}</pre>
+    <div style={{ 
+      minHeight: '100vh', 
+      padding: '32px', 
+      background: 'var(--bg-overlay, #000)',
+      color: 'var(--text-primary)',
+      fontFamily: 'var(--font-reading)',
+      transition: 'background 0.5s ease, color 0.5s ease'
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div className="glass-panel" style={{ padding: '32px' }}>
+          <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '16px', marginBottom: '32px' }}>
+            <h1 style={{ margin: '0 0 8px 0', fontSize: '2rem' }}>Typography Diagnostic</h1>
+            <p style={{ margin: 0, opacity: 0.7, color: 'var(--text-secondary)' }}>Testing the exact components and aesthetic styles of the reading mode.</p>
+          </div>
+          
+          <div className="custom-md-editor-container view-mode theme-default" style={{ background: 'transparent' }}>
+            <FoldableMarkdown markdown={testMarkdown} />
+          </div>
+        </div>
       </div>
     </div>
   );
