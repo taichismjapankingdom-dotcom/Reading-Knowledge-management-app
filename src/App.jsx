@@ -20,12 +20,18 @@ const BACKGROUNDS = {
   abstract: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'
 };
 
+import bgGothicLibrary from './assets/dark-academia/gothic_library.jpg';
+import bgCathedralStudy from './assets/dark-academia/cathedral_study.jpg';
+import bgOldCorridor from './assets/dark-academia/old_corridor.jpg';
+import bgCandlelitRoom from './assets/dark-academia/candlelit_room.jpg';
+import bgRainyNight from './assets/dark-academia/rainy_night.jpg';
+
 const DARK_ACADEMIA_BACKGROUNDS = {
-  gothic_library: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=2000&auto=format&fit=crop',
-  cathedral_study: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2000&auto=format&fit=crop',
-  old_corridor: 'https://images.unsplash.com/photo-1509315410940-202d57271926?q=80&w=2000&auto=format&fit=crop',
-  candlelit_room: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?q=80&w=2000&auto=format&fit=crop',
-  rainy_night: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=2000&auto=format&fit=crop'
+  gothic_library: bgGothicLibrary,
+  cathedral_study: bgCathedralStudy,
+  old_corridor: bgOldCorridor,
+  candlelit_room: bgCandlelitRoom,
+  rainy_night: bgRainyNight
 };
 
 function AuthWrapper({ children }) {
@@ -59,6 +65,21 @@ function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-background', background === 'dark_academia' ? 'dark_academia' : background === 'gradient' ? 'gradient' : 'photo');
   }, [background]);
+
+  // Log Dark Academia image failures during development
+  useEffect(() => {
+    if (background === 'dark_academia') {
+      const preset = darkAcademiaPreset || 'gothic_library';
+      const imgUrl = DARK_ACADEMIA_BACKGROUNDS[preset];
+      if (imgUrl) {
+        const img = new Image();
+        img.onerror = () => {
+          console.error(`[Background] Failed to load Dark Academia asset: ${preset}`);
+        };
+        img.src = imgUrl;
+      }
+    }
+  }, [background, darkAcademiaPreset]);
 
   // Sync language
   useEffect(() => {

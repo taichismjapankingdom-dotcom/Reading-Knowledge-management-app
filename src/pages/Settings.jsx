@@ -6,6 +6,21 @@ import { useBooks } from '../hooks/useBooks';
 import { Check } from 'lucide-react';
 import { exportLibrary, importLibrary } from '../utils/dataTransfer';
 import { supabase } from '../lib/supabase';
+
+import bgGothicLibrary from '../assets/dark-academia/gothic_library.jpg';
+import bgCathedralStudy from '../assets/dark-academia/cathedral_study.jpg';
+import bgOldCorridor from '../assets/dark-academia/old_corridor.jpg';
+import bgCandlelitRoom from '../assets/dark-academia/candlelit_room.jpg';
+import bgRainyNight from '../assets/dark-academia/rainy_night.jpg';
+
+const DARK_ACADEMIA_BACKGROUNDS = {
+  gothic_library: bgGothicLibrary,
+  cathedral_study: bgCathedralStudy,
+  old_corridor: bgOldCorridor,
+  candlelit_room: bgCandlelitRoom,
+  rainy_night: bgRainyNight
+};
+
 import './Settings.css';
 
 const BACKGROUNDS = [
@@ -166,7 +181,7 @@ export default function Settings() {
                 className={`bg-preview-card ${background === 'dark_academia' ? 'active' : ''}`}
                 onClick={() => setBackground('dark_academia')}
               >
-                <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=600&auto=format&fit=crop" alt="Dark Academia" />
+                <img src={DARK_ACADEMIA_BACKGROUNDS[darkAcademiaPreset || 'gothic_library']} alt="Dark Academia" />
                 <div className="bg-name">{t('settings.bg_dark_academia') || 'Dark Academia'}</div>
                 <AnimatePresence>
                   {background === 'dark_academia' && (
@@ -237,8 +252,13 @@ export default function Settings() {
                         key={preset.id}
                         className={`glass-btn ${darkAcademiaPreset === preset.id ? 'active' : ''}`}
                         onClick={() => setDarkAcademiaPreset(preset.id)}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 16px' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 16px', gap: '10px' }}
                       >
+                        <img 
+                          src={DARK_ACADEMIA_BACKGROUNDS[preset.id]} 
+                          style={{ minWidth: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.3)' }} 
+                          alt="" 
+                        />
                         {preset.label}
                       </button>
                     ))}

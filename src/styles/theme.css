@@ -140,7 +140,12 @@ body {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: -1;
-  transition: background 0.8s ease-in-out;
+  transition: background 0.8s ease-in-out, backdrop-filter 0.8s ease-in-out;
+}
+
+.app-background-overlay.dark-academia-overlay {
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
 }
 
 /* Global Glass Panel Component */
@@ -150,9 +155,9 @@ body {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  border-radius: 20px;
-  box-shadow: var(--glass-shadow), var(--glass-highlight);
-  transition: background 0.3s, border 0.3s;
+  border-radius: 16px;
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-btn {
@@ -220,7 +225,7 @@ body {
 
 /* Contextual Overrides for Dark Academia */
 :root[data-background="dark_academia"] {
-  --bg-overlay: rgba(5, 5, 10, 0.75); /* Deep atmospheric tint */
+  --bg-overlay: rgba(10, 5, 5, 0.2); /* Very subtle atmospheric tint so image remains dominant */
 }
 
 :root[data-background="dark_academia"][data-theme="light"] {
