@@ -272,34 +272,90 @@ export const syncEngine = {
 
     this.isSyncing = true;
     try {
-      const outbox = (await outboxStore.getItem('queue')) || [];
+      let outbox = (await outboxStore.getItem('queue')) || [];
       if (outbox.length === 0) return;
+
+      // 1. INSPECT AND REPAIR THE OUTBOX
+      console.log(`[SyncUp] Inspecting ${outbox.length} queued mutations before processing:`);
+      let localBooks = (await localforage.getItem('all_books')) || [];
+      
+      let repairedOutbox = false;
+      for (let i = 0; i < outbox.length; i++) {
+        const mutation = outbox[i];
+        console.log(`[SyncUp] Pending Mutation [${i}]:`, {
+          id: mutation.timestamp,
+          table: mutation.table,
+          action: mutation.action,
+          targetId: mutation.id,
+          payload: mutation.payload,
+          status: mutation.payload?.status
+        });
+        
+        // Repair 'books' mutations with missing status
+        if (mutation.table === 'books') {
+          if (!mutation.payload.status) {
+            console.warn(`[SyncUp] Repairing mutation ${mutation.timestamp} for ${mutation.id}: missing status.`);
+            
+            // Try to find the book locally to preserve existing status
+            const existingBook = localBooks.find(b => b.id === mutation.payload.id || b.legacy_id === mutation.payload.id);
+            if (existingBook && existingBook.status) {
+              mutation.payload.status = existingBook.status;
+              console.log(`[SyncUp] -> Recovered status '${existingBook.status}' from local database.`);
+            } else if (mutation.action === 'UPSERT') {
+              // If it's a genuine new book, use the default
+              mutation.payload.status = 'wishlist'; // Default fallback
+              console.log(`[SyncUp] -> Applied default status 'wishlist' for missing record.`);
+            }
+            repairedOutbox = true;
+          }
+        }
+      }
+      
+      if (repairedOutbox) {
+        await outboxStore.setItem('queue', outbox);
+        console.log(`[SyncUp] Persisted repaired outbox.`);
+      }
 
       const successfulIds = new Set();
 
+      // 2. PROCESS OUTBOX
       for (const mutation of outbox) {
         try {
-          console.log(`[SyncUp] Uploading to Supabase: ${mutation.table} (${mutation.id || 'settings'})`);
+          console.log(`[SyncUp] Uploading to Supabase: ${mutation.table} (${mutation.id || 'settings'}) via ${mutation.action}`);
           if (mutation.table === 'books') {
-            const { error } = await supabase.from('books').upsert({
-              id: mutation.payload.id,
-              user_id: session.user.id,
-              status: mutation.payload.status,
-              isbn: mutation.payload.isbn,
-              title: mutation.payload.title,
-              author: mutation.payload.author,
-              publisher: mutation.payload.publisher,
-              publishedDate: mutation.payload.publishedDate,
-              description: mutation.payload.description,
-              pageCount: mutation.payload.pageCount,
-              categories: mutation.payload.categories,
-              coverUrl: mutation.payload.coverUrl,
-              coverSource: mutation.payload.coverSource,
-              coverTimestamp: mutation.payload.coverTimestamp,
-              updated_at: mutation.payload.updated_at || mutation.timestamp,
-              deleted_at: mutation.payload.deleted_at || null
-            });
-            if (error) throw error;
+            
+            if (mutation.action === 'UPDATE' && mutation.payload.deleted_at) {
+              // Safe tombstone update
+              const { error } = await supabase.from('books').update({
+                deleted_at: mutation.payload.deleted_at,
+                updated_at: mutation.payload.updated_at || mutation.timestamp
+              }).eq('id', mutation.payload.id).eq('user_id', session.user.id);
+              if (error) throw error;
+            } else {
+              // Standard UPSERT
+              // Ensure we do NOT pass a literal undefined/null to 'status' if we somehow missed it
+              const upsertData = {
+                id: mutation.payload.id,
+                user_id: session.user.id,
+                status: mutation.payload.status || 'wishlist', // Final safety net
+                isbn: mutation.payload.isbn,
+                title: mutation.payload.title,
+                author: mutation.payload.author,
+                publisher: mutation.payload.publisher,
+                publishedDate: mutation.payload.publishedDate,
+                description: mutation.payload.description,
+                pageCount: mutation.payload.pageCount,
+                categories: mutation.payload.categories,
+                coverUrl: mutation.payload.coverUrl,
+                coverSource: mutation.payload.coverSource,
+                coverTimestamp: mutation.payload.coverTimestamp,
+                updated_at: mutation.payload.updated_at || mutation.timestamp,
+                deleted_at: mutation.payload.deleted_at || null
+              };
+              
+              const { error } = await supabase.from('books').upsert(upsertData);
+              if (error) throw error;
+            }
           } 
           else if (mutation.table === 'notes') {
             const { error } = await supabase.from('notes').upsert({
@@ -319,22 +375,29 @@ export const syncEngine = {
             });
             if (error) {
               console.warn(`[SyncUp] Failed to sync preferences (missing table?):`, error);
-              // Do NOT throw. We don't want a preferences schema error to block book/note sync.
             }
           }
           
-          console.log(`[SyncUp] Supabase upsert successful: ${mutation.id || 'settings'}`);
+          console.log(`[SyncUp] Supabase sync successful: ${mutation.id || 'settings'}`);
           successfulIds.add(mutation.timestamp);
         } catch (err) {
-          console.error(`[SyncUp] Supabase rejected insert for ${mutation.table}`, err);
-          alert(`[DEBUG] Supabase rejected ${mutation.table}: ${err.message || JSON.stringify(err)}`);
-          break; // Preserve order, retry later
+          console.error(`[SyncUp] Supabase rejected ${mutation.action} for ${mutation.table}`, err);
+          
+          // DO NOT alert raw SQL errors to user! Just log it.
+          // In severe cases, we could show a toast, but silently retrying is fine for offline-first.
+          // alert(`[DEBUG] Supabase rejected ${mutation.table}: ${err.message || JSON.stringify(err)}`);
+          
+          // If the error is a constraint error (like null value), and we couldn't repair it, 
+          // we might be stuck. But our repair logic above should fix it.
+          // If it fails again, we break and retry later.
+          break; 
         }
       }
 
       if (successfulIds.size > 0) {
         const remainingOutbox = outbox.filter(m => !successfulIds.has(m.timestamp));
         await outboxStore.setItem('queue', remainingOutbox);
+        console.log(`[SyncUp] Removed ${successfulIds.size} completed mutations from outbox. Remaining: ${remainingOutbox.length}`);
       }
     } finally {
       this.isSyncing = false;
