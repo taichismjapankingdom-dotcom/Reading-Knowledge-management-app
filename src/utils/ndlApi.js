@@ -8,7 +8,7 @@ const NDL_API_URL = "https://ndlsearch.ndl.go.jp/api/opensearch";
 
 export const searchNdl = async (query) => {
   try {
-    const res = await fetch(`${NDL_API_URL}?title=${encodeURIComponent(query)}&cnt=5`);
+    const res = await fetch(`${NDL_API_URL}?title=${encodeURIComponent(query)}&cnt=40`);
     if (!res.ok) throw new Error("NDL network response was not ok");
     const text = await res.text();
     return parseNdlXml(text);

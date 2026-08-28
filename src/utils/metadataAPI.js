@@ -13,7 +13,10 @@ const metaCache = localforage.createInstance({
 
 const normalizeString = (str) => {
   if (!str) return '';
-  return str.normalize('NFKC').replace(/[^\p{L}\p{N}]/gu, '').toLowerCase();
+  // Convert full-width to half-width, lowercase, strip punctuation and spaces
+  return str.normalize('NFKC')
+    .replace(/[『』「」（）()・,.;:\s]/g, '')
+    .toLowerCase();
 };
 
 export const cleanAuthorString = (raw) => {
@@ -71,15 +74,62 @@ const deduplicateAndMerge = (results) => {
   return merged;
 };
 
+// Ranking logic to suppress commentary and surface true classics
+const rankCandidates = (query, candidates) => {
+  const normQuery = normalizeString(query);
+  
+  return candidates.map(candidate => {
+    let score = 0;
+    const normTitle = normalizeString(candidate.title);
+    const normAuthor = normalizeString(candidate.author);
+    
+    // Exact title match gets massive priority
+    if (normTitle === normQuery) {
+      score += 1000;
+    } else if (normTitle.startsWith(normQuery)) {
+      score += 500;
+      // If it starts with the query, check if it's just the query + edition info vs commentary
+      if (normTitle.match(/を読む|論$|研究$|解説$|入門$|完全ガイド$|の世界$|を考える$/)) {
+        score -= 400; // Penalize commentary
+      } else {
+        score += 100; // Probably a subtitle or edition
+      }
+    } else if (normTitle.includes(normQuery)) {
+      score += 100;
+      if (normTitle.match(/を読む|論$|研究$|解説$|入門$|完全ガイド$|の世界$|を考える$/)) {
+        score -= 200; // Penalize commentary heavily
+      }
+    }
+    
+    // If the query includes the author name, boost it heavily
+    // Alternatively, if the candidate author matches parts of the query
+    if (normQuery.includes(normAuthor) && normAuthor.length > 2) {
+      score += 300;
+    }
+    
+    // Small boost for having a cover
+    if (candidate.coverUrl) {
+      score += 50;
+    }
+    
+    // Penalize weirdly long titles (often omnibuses or weird compilations) unless the query was also long
+    if (normTitle.length > normQuery.length * 3) {
+      score -= 50;
+    }
+
+    return { ...candidate, _score: score };
+  }).sort((a, b) => b._score - a._score);
+};
+
 export const searchBooks = async (query) => {
   try {
     const cacheKey = `search_${normalizeString(query)}`;
     const cached = await metaCache.getItem(cacheKey);
     if (cached) return cached;
 
-    // Parallel search across all providers
+    // Parallel search across all providers with increased maxResults
     const [googleRes, ndlRes] = await Promise.allSettled([
-      fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5`).then(res => res.json()),
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=40`).then(res => res.json()),
       searchNdl(query)
     ]);
 
@@ -94,8 +144,15 @@ export const searchBooks = async (query) => {
     }
 
     results = results.map(r => ({ ...r, author: cleanAuthorString(r.author) }));
-    const finalResults = deduplicateAndMerge(results);
     
+    let finalResults = deduplicateAndMerge(results);
+    
+    // Rank candidates aggressively
+    finalResults = rankCandidates(query, finalResults);
+    
+    // Clean up internal _score
+    finalResults.forEach(r => delete r._score);
+
     if (finalResults.length > 0) {
       await metaCache.setItem(cacheKey, finalResults);
     }

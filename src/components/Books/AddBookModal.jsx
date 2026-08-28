@@ -166,7 +166,11 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                 )}
                 <div className="result-info">
                   <h4>{book.title}</h4>
-                  <p>{book.author}</p>
+                  <p className="result-author">{book.author}</p>
+                  <p className="result-meta" style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '4px' }}>
+                    {book.publisher} {book.publicationYear ? `(${book.publicationYear})` : ''}
+                  </p>
+                  {book.isbn && <p className="result-isbn" style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '2px' }}>ISBN: {book.isbn}</p>}
                 </div>
               </div>
             ))}
