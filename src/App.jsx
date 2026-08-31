@@ -12,12 +12,17 @@ import './App.css';
 
 import { useSettingsStore } from './store/useSettingsStore';
 
+import bgAntiqueBotanical from './assets/backgrounds/antique_botanical.jpg';
+import bgCityStudy from './assets/backgrounds/city_study.jpg';
+
 const BACKGROUNDS = {
   cozy: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop',
   modern: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop',
   library: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2190&auto=format&fit=crop',
   nature: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071&auto=format&fit=crop',
-  abstract: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'
+  abstract: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop',
+  antique_botanical: bgAntiqueBotanical,
+  city_study: bgCityStudy
 };
 
 function AuthWrapper({ children }) {

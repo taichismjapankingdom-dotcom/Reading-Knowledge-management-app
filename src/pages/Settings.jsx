@@ -7,11 +7,14 @@ import { Check } from 'lucide-react';
 import { exportLibrary, importLibrary } from '../utils/dataTransfer';
 import { supabase } from '../lib/supabase';
 
-
+import bgAntiqueBotanical from '../assets/backgrounds/antique_botanical.jpg';
+import bgCityStudy from '../assets/backgrounds/city_study.jpg';
 
 import './Settings.css';
 
 const BACKGROUNDS = [
+  { id: 'antique_botanical', name: 'Antique Botanical', url: bgAntiqueBotanical },
+  { id: 'city_study', name: 'Modern City Study', url: bgCityStudy },
   { id: 'cozy', name: 'Cozy Room', url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop' },
   { id: 'modern', name: 'Modern Study', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop' },
   { id: 'library', name: 'Library', url: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2190&auto=format&fit=crop' },
