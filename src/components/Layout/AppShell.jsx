@@ -4,6 +4,7 @@ import { BookOpen, Settings, Book } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { migrateAllNotes } from '../../hooks/useNotes';
+import UpgradeModal from '../Premium/UpgradeModal';
 import './AppShell.css';
 
 export default function AppShell() {
@@ -24,6 +25,7 @@ export default function AppShell() {
 
   return (
     <div className="app-container">
+      <UpgradeModal />
       {/* Background layer for theming is handled in App.jsx or body */}
 
       {!isMobile && (
