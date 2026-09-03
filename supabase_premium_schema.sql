@@ -1,7 +1,10 @@
 -- ==============================================================================
--- PREMIUM FEATURES SCHEMA MIGRATION (Phase 0 - Hardened)
+-- PREMIUM FEATURES SCHEMA MIGRATION (Phase 0 - Hardened + Complimentary Access)
 -- Please run this script in your Supabase SQL Editor.
 -- ==============================================================================
+
+-- Ensure pgcrypto is enabled for secure code hashing
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 1. SUBSCRIPTIONS TABLE
 CREATE TABLE IF NOT EXISTS public.subscriptions (
@@ -141,3 +144,92 @@ ALTER TABLE public.books
     ADD COLUMN IF NOT EXISTS synopsis_language TEXT,
     ADD COLUMN IF NOT EXISTS synopsis_model TEXT,
     ADD COLUMN IF NOT EXISTS synopsis_source_url TEXT;
+
+
+-- 6. COMPLIMENTARY ACCESS CODES
+CREATE TABLE IF NOT EXISTS public.premium_access_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code_hash TEXT NOT NULL UNIQUE, -- SHA256 hex string to securely verify codes
+  type TEXT NOT NULL DEFAULT 'single_use', -- e.g. 'single_use', 'multi_use'
+  max_redemptions INT NOT NULL DEFAULT 1,
+  current_redemptions INT NOT NULL DEFAULT 0 CHECK (current_redemptions >= 0),
+  grant_duration_days INT, -- NULL means non-expiring/lifetime access
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+ALTER TABLE public.premium_access_codes ENABLE ROW LEVEL SECURITY;
+-- No public policies! Ordinary users cannot SELECT, INSERT, UPDATE, or DELETE from this table.
+
+
+-- 7. COMPLIMENTARY GRANTS (REDEMPTIONS)
+CREATE TABLE IF NOT EXISTS public.premium_access_redemptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  code_id UUID REFERENCES public.premium_access_codes(id) ON DELETE CASCADE,
+  redeemed_at TIMESTAMPTZ DEFAULT now(),
+  expires_at TIMESTAMPTZ,
+  is_revoked BOOLEAN NOT NULL DEFAULT false,
+  UNIQUE(user_id, code_id) -- A user can only redeem a specific code once
+);
+
+ALTER TABLE public.premium_access_redemptions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own redemptions" ON public.premium_access_redemptions;
+CREATE POLICY "Users can view their own redemptions" 
+  ON public.premium_access_redemptions FOR SELECT 
+  USING (auth.uid() = user_id);
+-- No public INSERT/UPDATE/DELETE. Handled securely via RPC below.
+
+
+-- 8. ATOMIC REDEMPTION RPC
+CREATE OR REPLACE FUNCTION public.redeem_premium_code(plaintext_code TEXT)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER -- Bypasses RLS to allow querying the locked-down access_codes table safely
+SET search_path = public
+AS $$
+DECLARE
+  target_code RECORD;
+  computed_hash TEXT;
+  new_expires_at TIMESTAMPTZ;
+BEGIN
+  -- Hash the incoming plaintext code (SHA256) so we never compare plaintext in the DB
+  computed_hash := encode(digest(plaintext_code, 'sha256'), 'hex');
+
+  -- Find matching active code and LOCK IT to prevent concurrent over-redemption race conditions
+  SELECT * INTO target_code 
+  FROM premium_access_codes 
+  WHERE code_hash = computed_hash
+    AND is_active = true 
+    AND current_redemptions < max_redemptions
+  FOR UPDATE; 
+
+  IF NOT FOUND THEN
+    RETURN json_build_object('success', false, 'error', 'Invalid, expired, or fully redeemed code.');
+  END IF;
+
+  -- Check if already redeemed by this specific user
+  IF EXISTS (SELECT 1 FROM premium_access_redemptions WHERE user_id = auth.uid() AND code_id = target_code.id) THEN
+    RETURN json_build_object('success', false, 'error', 'You have already redeemed this code.');
+  END IF;
+
+  -- Calculate expiration date
+  IF target_code.grant_duration_days IS NOT NULL THEN
+    new_expires_at := now() + (target_code.grant_duration_days || ' days')::interval;
+  ELSE
+    new_expires_at := NULL;
+  END IF;
+
+  -- Atomic increment of the redemption counter
+  UPDATE premium_access_codes 
+  SET current_redemptions = current_redemptions + 1 
+  WHERE id = target_code.id;
+
+  -- Insert the user's new entitlement grant
+  INSERT INTO premium_access_redemptions (user_id, code_id, expires_at)
+  VALUES (auth.uid(), target_code.id, new_expires_at);
+
+  RETURN json_build_object('success', true, 'expires_at', new_expires_at);
+END;
+$$;

@@ -33,27 +33,50 @@ export const useEntitlement = (feature) => {
           return;
         }
 
-        // Fetch from Supabase subscriptions table
-        const { data, error } = await supabase
+        // 1. Fetch Paid Subscription State
+        const { data: subData, error: subError } = await supabase
           .from('subscriptions')
           .select('status')
           .eq('user_id', session.user.id)
           .single();
           
-        let status = 'free';
-        if (!error && data) {
-          status = data.status;
-        } else if (error && error.code === 'PGRST116') {
-          // No row found, means free user
-          status = 'free';
+        let isPremiumActive = false;
+        
+        if (!subError && subData && ['active', 'trialing'].includes(subData.status)) {
+          isPremiumActive = true;
+        }
+        
+        // 2. Fetch Complimentary Grants (if not already paid)
+        if (!isPremiumActive) {
+          const { data: compData, error: compError } = await supabase
+            .from('premium_access_redemptions')
+            .select('expires_at, is_revoked')
+            .eq('user_id', session.user.id)
+            .eq('is_revoked', false);
+            
+          if (!compError && compData && compData.length > 0) {
+            const now = new Date();
+            // Check if any grant is either lifetime (null) or still in the future
+            const hasValidGrant = compData.some(grant => {
+              if (grant.expires_at === null) return true; 
+              return new Date(grant.expires_at) > now;
+            });
+            
+            if (hasValidGrant) {
+              isPremiumActive = true;
+            }
+          }
         }
 
-        // DEVELOPMENT ONLY: Mock active subscription if 'mock_premium' is set in localStorage
-        if (localStorage.getItem('mock_premium') === 'true') {
+        let status = isPremiumActive ? 'active' : 'free';
+
+        // DEVELOPMENT ONLY: Mock active subscription if 'mock_premium' is set
+        // This is strictly stripped or inert in production environments.
+        if (import.meta.env.DEV && localStorage.getItem('mock_premium') === 'true') {
           status = 'active';
         }
 
-        // Cache the result
+        // Cache the combined authoritative result
         await localforage.setItem(CACHE_KEY, { status, timestamp: Date.now() });
 
         if (isMounted) {
@@ -77,7 +100,7 @@ export const useEntitlement = (feature) => {
   return { hasEntitlement, loading };
 };
 
-// Evaluates whether a given subscription status unlocks a specific feature
+// Evaluates whether a given resolved status unlocks a specific feature
 function evaluateFeature(status, feature) {
   // Free tier features
   if (['spotify_connection', 'youtube_embed'].includes(feature)) {
@@ -93,7 +116,8 @@ function evaluateFeature(status, feature) {
     'automatic_synopsis',
     'ai_note_assistant',
     'ai_quiz',
-    'ai_dictionary'
+    'ai_dictionary',
+    'conversational_search'
   ];
   
   if (premiumFeatures.includes(feature)) {

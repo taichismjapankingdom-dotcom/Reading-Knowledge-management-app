@@ -80,15 +80,27 @@ export default function UpgradeModal() {
           </div>
 
           <div className="upgrade-actions">
-            {!isMockPremium ? (
-              <button className="primary-btn upgrade-cta-btn" onClick={handleMockUpgrade}>
-                Try Premium (Mock Developer Mode)
-              </button>
-            ) : (
-              <button className="glass-btn downgrade-btn" onClick={handleMockDowngrade}>
-                Revert to Free (Mock Developer Mode)
-              </button>
+            {import.meta.env.DEV && (
+              <div className="dev-mock-actions" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '0.5rem' }}>DEVELOPMENT ONLY</p>
+                {!isMockPremium ? (
+                  <button className="primary-btn upgrade-cta-btn" onClick={handleMockUpgrade} style={{ marginBottom: 0 }}>
+                    Try Premium (Mock)
+                  </button>
+                ) : (
+                  <button className="glass-btn downgrade-btn" onClick={handleMockDowngrade} style={{ marginBottom: 0 }}>
+                    Revert to Free (Mock)
+                  </button>
+                )}
+              </div>
             )}
+            
+            {!import.meta.env.DEV && (
+               <button className="primary-btn upgrade-cta-btn" onClick={() => alert("Stripe checkout would open here.")}>
+                  Upgrade to Premium
+               </button>
+            )}
+            
             <p className="billing-terms">Cancel anytime. Billed annually.</p>
           </div>
 
