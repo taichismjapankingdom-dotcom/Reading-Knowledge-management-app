@@ -193,11 +193,12 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- 1. Check active/trialing paid subscription
+  -- 1. Check active/trialing paid subscription (respecting expiration if present)
   IF EXISTS (
     SELECT 1 FROM public.subscriptions 
     WHERE user_id = target_user_id 
       AND status IN ('active', 'trialing')
+      AND (current_period_end IS NULL OR current_period_end > now())
   ) THEN
     RETURN true;
   END IF;
@@ -216,17 +217,26 @@ BEGIN
 END;
 $$;
 
--- Authenticated wrapper for frontend UI checking
+-- Secure arbitrary user checks: prevent public/authenticated clients from checking others
+REVOKE ALL ON FUNCTION public.check_premium_access(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.check_premium_access(UUID) FROM anon;
+REVOKE ALL ON FUNCTION public.check_premium_access(UUID) FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.check_premium_access(UUID) TO service_role;
+
+-- Authenticated wrapper for frontend UI checking (users checking themselves)
 CREATE OR REPLACE FUNCTION public.my_premium_access()
 RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
+SET search_path = public
 AS $$
   SELECT public.check_premium_access(auth.uid());
 $$;
 
+-- Prevent unauthenticated calls
+REVOKE ALL ON FUNCTION public.my_premium_access() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.my_premium_access() FROM anon;
 GRANT EXECUTE ON FUNCTION public.my_premium_access() TO authenticated;
-
 
 -- 9. ATOMIC REDEMPTION RPC (Strictly for Service Role via Edge Functions)
 CREATE OR REPLACE FUNCTION public.redeem_premium_code(target_user_id UUID, plaintext_code TEXT)
