@@ -33,42 +33,10 @@ export const useEntitlement = (feature) => {
           return;
         }
 
-        // 1. Fetch Paid Subscription State
-        const { data: subData, error: subError } = await supabase
-          .from('subscriptions')
-          .select('status')
-          .eq('user_id', session.user.id)
-          .single();
-          
-        let isPremiumActive = false;
+        // 1. Fetch Authoritative Entitlement State from Database Resolver
+        const { data: isPremium, error } = await supabase.rpc('my_premium_access');
         
-        if (!subError && subData && ['active', 'trialing'].includes(subData.status)) {
-          isPremiumActive = true;
-        }
-        
-        // 2. Fetch Complimentary Grants (if not already paid)
-        if (!isPremiumActive) {
-          const { data: compData, error: compError } = await supabase
-            .from('premium_access_redemptions')
-            .select('expires_at, is_revoked')
-            .eq('user_id', session.user.id)
-            .eq('is_revoked', false);
-            
-          if (!compError && compData && compData.length > 0) {
-            const now = new Date();
-            // Check if any grant is either lifetime (null) or still in the future
-            const hasValidGrant = compData.some(grant => {
-              if (grant.expires_at === null) return true; 
-              return new Date(grant.expires_at) > now;
-            });
-            
-            if (hasValidGrant) {
-              isPremiumActive = true;
-            }
-          }
-        }
-
-        let status = isPremiumActive ? 'active' : 'free';
+        let status = (!error && isPremium) ? 'active' : 'free';
 
         // DEVELOPMENT ONLY: Mock active subscription if 'mock_premium' is set
         // This is strictly stripped or inert in production environments.

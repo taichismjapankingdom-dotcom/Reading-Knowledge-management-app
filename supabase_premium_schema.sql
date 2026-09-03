@@ -150,10 +150,12 @@ ALTER TABLE public.books
 CREATE TABLE IF NOT EXISTS public.premium_access_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code_hash TEXT NOT NULL UNIQUE, -- SHA256 hex string to securely verify codes
-  type TEXT NOT NULL DEFAULT 'single_use', -- e.g. 'single_use', 'multi_use'
-  max_redemptions INT NOT NULL DEFAULT 1,
-  current_redemptions INT NOT NULL DEFAULT 0 CHECK (current_redemptions >= 0),
-  grant_duration_days INT, -- NULL means non-expiring/lifetime access
+  label TEXT, -- Non-secret administrative label (e.g., 'Family', 'Beta Testers')
+  type TEXT NOT NULL DEFAULT 'single_use',
+  max_redemptions INT NOT NULL DEFAULT 1 CHECK (max_redemptions > 0),
+  current_redemptions INT NOT NULL DEFAULT 0 CHECK (current_redemptions >= 0 AND current_redemptions <= max_redemptions),
+  grant_duration_days INT CHECK (grant_duration_days > 0), -- NULL means non-expiring/lifetime access
+  redeemable_until TIMESTAMPTZ, -- The deadline by which the code must be entered
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now(),
   created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
@@ -182,8 +184,52 @@ CREATE POLICY "Users can view their own redemptions"
 -- No public INSERT/UPDATE/DELETE. Handled securely via RPC below.
 
 
--- 8. ATOMIC REDEMPTION RPC
-CREATE OR REPLACE FUNCTION public.redeem_premium_code(plaintext_code TEXT)
+-- 8. CANONICAL ENTITLEment RESOLVER
+-- Server-side authoritative truth for Premium status
+CREATE OR REPLACE FUNCTION public.check_premium_access(target_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- 1. Check active/trialing paid subscription
+  IF EXISTS (
+    SELECT 1 FROM public.subscriptions 
+    WHERE user_id = target_user_id 
+      AND status IN ('active', 'trialing')
+  ) THEN
+    RETURN true;
+  END IF;
+
+  -- 2. Check valid complimentary grants
+  IF EXISTS (
+    SELECT 1 FROM public.premium_access_redemptions 
+    WHERE user_id = target_user_id 
+      AND is_revoked = false 
+      AND (expires_at IS NULL OR expires_at > now())
+  ) THEN
+    RETURN true;
+  END IF;
+
+  RETURN false;
+END;
+$$;
+
+-- Authenticated wrapper for frontend UI checking
+CREATE OR REPLACE FUNCTION public.my_premium_access()
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT public.check_premium_access(auth.uid());
+$$;
+
+GRANT EXECUTE ON FUNCTION public.my_premium_access() TO authenticated;
+
+
+-- 9. ATOMIC REDEMPTION RPC (Strictly for Service Role via Edge Functions)
+CREATE OR REPLACE FUNCTION public.redeem_premium_code(target_user_id UUID, plaintext_code TEXT)
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER -- Bypasses RLS to allow querying the locked-down access_codes table safely
@@ -194,6 +240,10 @@ DECLARE
   computed_hash TEXT;
   new_expires_at TIMESTAMPTZ;
 BEGIN
+  IF target_user_id IS NULL THEN
+    RAISE EXCEPTION 'User ID is required';
+  END IF;
+
   -- Hash the incoming plaintext code (SHA256) so we never compare plaintext in the DB
   computed_hash := encode(digest(plaintext_code, 'sha256'), 'hex');
 
@@ -202,19 +252,21 @@ BEGIN
   FROM premium_access_codes 
   WHERE code_hash = computed_hash
     AND is_active = true 
+    AND (redeemable_until IS NULL OR redeemable_until > now())
     AND current_redemptions < max_redemptions
   FOR UPDATE; 
 
   IF NOT FOUND THEN
-    RETURN json_build_object('success', false, 'error', 'Invalid, expired, or fully redeemed code.');
+    -- Generic failure response hides existence, expiration, or capacity details from attackers
+    RETURN json_build_object('success', false, 'error', 'This Premium access code is invalid or unavailable.');
   END IF;
 
   -- Check if already redeemed by this specific user
-  IF EXISTS (SELECT 1 FROM premium_access_redemptions WHERE user_id = auth.uid() AND code_id = target_code.id) THEN
-    RETURN json_build_object('success', false, 'error', 'You have already redeemed this code.');
+  IF EXISTS (SELECT 1 FROM premium_access_redemptions WHERE user_id = target_user_id AND code_id = target_code.id) THEN
+    RETURN json_build_object('success', false, 'error', 'This Premium access code is invalid or unavailable.');
   END IF;
 
-  -- Calculate expiration date
+  -- Calculate grant expiration date
   IF target_code.grant_duration_days IS NOT NULL THEN
     new_expires_at := now() + (target_code.grant_duration_days || ' days')::interval;
   ELSE
@@ -228,8 +280,14 @@ BEGIN
 
   -- Insert the user's new entitlement grant
   INSERT INTO premium_access_redemptions (user_id, code_id, expires_at)
-  VALUES (auth.uid(), target_code.id, new_expires_at);
+  VALUES (target_user_id, target_code.id, new_expires_at);
 
   RETURN json_build_object('success', true, 'expires_at', new_expires_at);
 END;
 $$;
+
+-- SECURE REDEMPTION EXECUTION: Prevent browser bypass of Edge Function rate limiters
+REVOKE ALL ON FUNCTION public.redeem_premium_code(UUID, TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.redeem_premium_code(UUID, TEXT) FROM anon;
+REVOKE ALL ON FUNCTION public.redeem_premium_code(UUID, TEXT) FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.redeem_premium_code(UUID, TEXT) TO service_role;
