@@ -6,6 +6,7 @@ import BookDetail from '../components/Books/BookDetail';
 import AddBookModal from '../components/Books/AddBookModal';
 import { useBooks, addBookToStore, updateBookStatus } from '../hooks/useBooks';
 import { useTranslation } from 'react-i18next';
+import { useEntitlement } from '../hooks/useEntitlement';
 import './Bookshelf.css';
 
 const TABS = [
@@ -18,6 +19,7 @@ const TABS = [
 export default function Bookshelf() {
   const { t } = useTranslation();
   const { books, loading, refresh } = useBooks();
+  const { hasEntitlement: isPremium } = useEntitlement('unlimited_books');
   const [activeTab, setActiveTab] = useState('all');
   const [selectedBook, setSelectedBook] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -54,11 +56,18 @@ export default function Bookshelf() {
       <header className="bookshelf-header glass-panel">
         <div className="header-top">
           <h1 className="bookshelf-title">{t('bookshelf.title')}</h1>
-          <button className="glass-btn primary add-book-btn" onClick={() => setIsAddModalOpen(true)}>
-            <Plus size={18} className="add-icon" />
-            <span className="add-label-full">{t('common.add_book')}</span>
-            <span className="add-label-short">{t('common.add')}</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {!isPremium && (
+              <span style={{ fontSize: '0.85rem', opacity: 0.7, background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '12px' }}>
+                {books.filter(b => !b.deleted_at).length} / 30 {t('premium.books', 'books')}
+              </span>
+            )}
+            <button className="glass-btn primary add-book-btn" onClick={() => setIsAddModalOpen(true)}>
+              <Plus size={18} className="add-icon" />
+              <span className="add-label-full">{t('common.add_book')}</span>
+              <span className="add-label-short">{t('common.add')}</span>
+            </button>
+          </div>
         </div>
 
         <div className="header-controls">

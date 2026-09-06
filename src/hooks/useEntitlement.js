@@ -36,7 +36,20 @@ export const useEntitlement = (feature) => {
         // 1. Fetch Authoritative Entitlement State from Database Resolver
         const { data: isPremium, error } = await supabase.rpc('my_premium_access');
         
-        let status = (!error && isPremium) ? 'active' : 'free';
+        // If network error, try to use expired cache as fallback
+        if (error) {
+          if (cached) {
+             console.warn("Network error fetching entitlement, falling back to cached value.");
+             if (isMounted) {
+               setHasEntitlement(evaluateFeature(cached.status, feature));
+               setLoading(false);
+             }
+             return;
+          }
+          throw error;
+        }
+
+        let status = isPremium ? 'active' : 'free';
 
         // DEVELOPMENT ONLY: Mock active subscription if 'mock_premium' is set
         // This is strictly stripped or inert in production environments.
@@ -53,8 +66,10 @@ export const useEntitlement = (feature) => {
         }
       } catch (err) {
         console.error('Error checking entitlement:', err);
+        // Final fallback just in case
         if (isMounted) {
-          setHasEntitlement(false);
+          const cached = await localforage.getItem(CACHE_KEY);
+          setHasEntitlement(evaluateFeature(cached?.status || 'free', feature));
           setLoading(false);
         }
       }

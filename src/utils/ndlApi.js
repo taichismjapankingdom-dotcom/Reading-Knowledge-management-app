@@ -30,7 +30,7 @@ export const fetchNdlByIsbn = async (isbn) => {
   }
 };
 
-function parseNdlXml(xmlText) {
+export function parseNdlXml(xmlText) {
   const parser = new DOMParser();
   const xml = parser.parseFromString(xmlText, "text/xml");
   const items = xml.querySelectorAll("item");

@@ -201,5 +201,29 @@
     "add_a_book": "Ajouter un livre",
     "add": "Ajouter",
     "back": "Retour"
+  },
+  "premium": {
+    "title": "Premium et Abonnement",
+    "current_plan": "Plan Actuel",
+    "upgrade_btn": "Passer à Premium",
+    "redeem_title": "Accès Gratuit",
+    "redeem_hint": "Saisissez un code d'accès pour débloquer les fonctionnalités Premium.",
+    "code_placeholder": "Entrez le code",
+    "redeem_btn": "Utiliser",
+    "redeeming": "En cours...",
+    "invalid_code": "Ce code d'accès Premium est invalide ou indisponible.",
+    "redeem_success": "Code utilisé avec succès ! Vous avez maintenant accès à Premium.",
+    "book_limit_reached": "Limite gratuite atteinte (30/30 livres)",
+    "books": "livres",
+    "search_limit_reached": "Limite de recherche atteinte pour aujourd'hui",
+    "searches_remaining": "{{remaining}} sur 10 recherches restantes aujourd'hui",
+    "feat_unlimited": "Livres et Recherches Illimités",
+    "feat_unlimited_desc": "Enregistrez un nombre illimité de livres et effectuez des recherches de métadonnées illimitées.",
+    "feat_ai": "Suite IA Avancée",
+    "feat_ai_desc": "Assistant de Notes IA, Quiz IA, Synopsis Automatique, Dictionnaire IA et Recherche Web Conversationnelle.",
+    "feat_media": "Médias de Concentration",
+    "feat_media_desc": "Intégrez des playlists YouTube directement dans votre environnement de lecture pour une concentration optimale.",
+    "upgrade_coming_soon": "Abonnements Premium bientôt disponibles",
+    "redeem_hint_modal": "Vous avez un code d'accès gratuit ? Utilisez-le dans les Paramètres."
   }
 }

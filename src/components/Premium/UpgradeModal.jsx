@@ -57,24 +57,24 @@ export default function UpgradeModal() {
             <div className="feature-item">
               <BookOpen size={24} />
               <div>
-                <h4>Unlimited Library</h4>
-                <p>Register unlimited books and use advanced metadata searches.</p>
+                <h4>{t('premium.feat_unlimited', 'Unlimited Books & Searches')}</h4>
+                <p>{t('premium.feat_unlimited_desc', 'Register unlimited books and perform unlimited metadata searches.')}</p>
               </div>
             </div>
             
             <div className="feature-item">
               <BrainCircuit size={24} />
               <div>
-                <h4>AI Reading Companion</h4>
-                <p>Organize notes, generate quizzes, and use the AI dictionary.</p>
+                <h4>{t('premium.feat_ai', 'Advanced AI Suite')}</h4>
+                <p>{t('premium.feat_ai_desc', 'AI Note Assistant, AI Quiz, Automatic Synopsis, AI Dictionary, and Conversational Web Search.')}</p>
               </div>
             </div>
 
             <div className="feature-item">
               <Headphones size={24} />
               <div>
-                <h4>Reading Soundtracks</h4>
-                <p>Embed YouTube playlists to create your ideal focus environment.</p>
+                <h4>{t('premium.feat_media', 'Focus Media')}</h4>
+                <p>{t('premium.feat_media_desc', 'Embed YouTube playlists directly into your reading environment for deep focus.')}</p>
               </div>
             </div>
           </div>
@@ -96,12 +96,12 @@ export default function UpgradeModal() {
             )}
             
             {!import.meta.env.DEV && (
-               <button className="primary-btn upgrade-cta-btn" onClick={() => alert("Stripe checkout would open here.")}>
-                  Upgrade to Premium
+               <button className="primary-btn upgrade-cta-btn" disabled style={{ opacity: 0.7 }}>
+                  {t('premium.upgrade_coming_soon', 'Premium Subscriptions Coming Soon')}
                </button>
             )}
             
-            <p className="billing-terms">Cancel anytime. Billed annually.</p>
+            <p className="billing-terms">{t('premium.redeem_hint_modal', 'Have a complimentary access code? Redeem it in Settings.')}</p>
           </div>
 
         </motion.div>

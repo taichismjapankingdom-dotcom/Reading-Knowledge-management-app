@@ -4,17 +4,50 @@ import { X, Search, Camera, Book as BookIcon, Loader2 } from 'lucide-react';
 import { searchBooks, fetchByISBN } from '../../utils/metadataAPI';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useTranslation } from 'react-i18next';
+import { useEntitlement } from '../../hooks/useEntitlement';
+import { useBooks } from '../../hooks/useBooks';
 import './AddBookModal.css';
 
 export default function AddBookModal({ isOpen, onClose, onAdd }) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('search'); // 'search', 'isbn', 'scan'
+  const { hasEntitlement: isPremium } = useEntitlement('unlimited_books');
+  const { books } = useBooks();
+  
+  const [activeTab, setActiveTab] = useState('search');
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [error, setError] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
   const scannerRef = useRef(null);
+  
+  const [searchUsage, setSearchUsage] = useState(0);
+
+  const isLimitReached = !isPremium && books.filter(b => !b.deleted_at).length >= 30;
+
+  useEffect(() => {
+    if (isOpen && !isPremium) {
+      const fetchUsage = async () => {
+        const { supabase } = await import('../../lib/supabase');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const { data } = await supabase
+          .from('usage_daily')
+          .select('count')
+          .eq('user_id', session.user.id)
+          .eq('feature', 'book_search')
+          .eq('day', today)
+          .single();
+          
+        if (data) {
+          setSearchUsage(data.count);
+        }
+      };
+      fetchUsage();
+    }
+  }, [isOpen, isPremium]);
 
   // Cleanup scanner if modal closes or tab changes
   useEffect(() => {
@@ -44,11 +77,15 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
         setResults([res]);
       }
       
-      if (results.length === 0 && activeTab === 'search') {
-          // Handled by empty results check in UI
+      // Increment local usage state if it succeeded (backend handles real enforcement)
+      if (!isPremium) {
+        setSearchUsage(prev => prev + 1);
       }
     } catch (err) {
       setError(err.message);
+      if (err.message.includes('Search limit reached')) {
+        window.dispatchEvent(new Event('open_upgrade_modal'));
+      }
     } finally {
       setLoading(false);
     }
@@ -77,8 +114,12 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
           try {
             const res = await fetchByISBN(decodedText);
             setResults([res]);
+            if (!isPremium) setSearchUsage(prev => prev + 1);
           } catch (err) {
-            setError(t('add_book.scan_failed'));
+            setError(err.message || t('add_book.scan_failed'));
+            if (err.message && err.message.includes('Search limit reached')) {
+              window.dispatchEvent(new Event('open_upgrade_modal'));
+            }
           } finally {
             setLoading(false);
           }
@@ -131,18 +172,28 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
         </div>
 
         {activeTab !== 'scan' && !selectedBook && (
-          <form onSubmit={handleSearch} className="search-form">
-            <input 
-              type="text" 
-              placeholder={activeTab === 'search' ? t('add_book.search_placeholder') : t('add_book.isbn_placeholder')}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="glass-input"
-            />
-            <button type="submit" className="glass-btn primary" disabled={loading}>
-              {loading ? <Loader2 size={18} className="spin" /> : <Search size={18} />}
-            </button>
-          </form>
+          <>
+            <form onSubmit={handleSearch} className="search-form">
+              <input 
+                type="text" 
+                placeholder={activeTab === 'search' ? t('add_book.search_placeholder') : t('add_book.isbn_placeholder')}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="glass-input"
+              />
+              <button type="submit" className="glass-btn primary" disabled={loading || (!isPremium && searchUsage >= 10)}>
+                {loading ? <Loader2 size={18} className="spin" /> : <Search size={18} />}
+              </button>
+            </form>
+            {!isPremium && (
+              <div style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '8px', textAlign: 'right' }}>
+                {searchUsage >= 10 
+                  ? <span style={{ color: '#ff3b30' }}>{t('premium.search_limit_reached', 'Search limit reached today')}</span>
+                  : t('premium.searches_remaining', '{{remaining}} of 10 searches remaining today', { remaining: Math.max(0, 10 - searchUsage) })
+                }
+              </div>
+            )}
+          </>
         )}
 
         {activeTab === 'scan' && !selectedBook && (
@@ -195,11 +246,21 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
             </div>
             <div className="add-actions">
               <p>{t('add_book.add_to')}</p>
-              <div className="action-buttons">
-                <button className="glass-btn" onClick={() => handleConfirmAdd('reading')}>{t('add_book.add_reading')}</button>
-                <button className="glass-btn" onClick={() => handleConfirmAdd('queue')}>{t('add_book.add_queue')}</button>
-                <button className="glass-btn" onClick={() => handleConfirmAdd('library')}>{t('add_book.add_library')}</button>
-              </div>
+              
+              {isLimitReached ? (
+                <div style={{ padding: '16px', background: 'rgba(255,59,48,0.1)', borderRadius: '8px', border: '1px solid rgba(255,59,48,0.2)', marginBottom: '12px' }}>
+                  <p style={{ color: '#ff3b30', fontWeight: 'bold', margin: '0 0 8px 0' }}>{t('premium.book_limit_reached', 'Free limit reached (30/30 books)')}</p>
+                  <button className="primary-btn" onClick={() => { onClose(); window.dispatchEvent(new Event('open_upgrade_modal')); }}>
+                    {t('premium.upgrade_btn', 'Upgrade to Premium')}
+                  </button>
+                </div>
+              ) : (
+                <div className="action-buttons">
+                  <button className="glass-btn" onClick={() => handleConfirmAdd('reading')}>{t('add_book.add_reading')}</button>
+                  <button className="glass-btn" onClick={() => handleConfirmAdd('queue')}>{t('add_book.add_queue')}</button>
+                  <button className="glass-btn" onClick={() => handleConfirmAdd('library')}>{t('add_book.add_library')}</button>
+                </div>
+              )}
             </div>
           </div>
         )}

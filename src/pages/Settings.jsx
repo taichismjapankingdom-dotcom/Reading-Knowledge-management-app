@@ -6,6 +6,7 @@ import { useBooks } from '../hooks/useBooks';
 import { Check } from 'lucide-react';
 import { exportLibrary, importLibrary } from '../utils/dataTransfer';
 import { supabase } from '../lib/supabase';
+import PremiumSettings from '../components/Premium/PremiumSettings';
 
 import bgAntiqueBotanical from '../assets/backgrounds/antique_botanical.jpg';
 import bgCityStudy from '../assets/backgrounds/city_study.jpg';
@@ -354,6 +355,8 @@ export default function Settings() {
             </AnimatePresence>
           </div>
         </section>
+
+      <PremiumSettings />
 
         <section className="settings-section glass-panel">
           <h2>{t('settings.data_management')}</h2>

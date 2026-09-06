@@ -201,5 +201,29 @@
     "add_a_book": "Add a Book",
     "add": "Add",
     "back": "Back"
+  },
+  "premium": {
+    "title": "Premium & Subscription",
+    "current_plan": "Current Plan",
+    "upgrade_btn": "Upgrade to Premium",
+    "redeem_title": "Complimentary Access",
+    "redeem_hint": "Enter an access code to unlock Premium features.",
+    "code_placeholder": "Enter code",
+    "redeem_btn": "Redeem",
+    "redeeming": "Redeeming...",
+    "invalid_code": "This Premium access code is invalid or unavailable.",
+    "redeem_success": "Code successfully redeemed! You now have Premium access.",
+    "book_limit_reached": "Free limit reached (30/30 books)",
+    "books": "books",
+    "search_limit_reached": "Search limit reached today",
+    "searches_remaining": "{{remaining}} of 10 searches remaining today",
+    "feat_unlimited": "Unlimited Books & Searches",
+    "feat_unlimited_desc": "Register unlimited books and perform unlimited metadata searches.",
+    "feat_ai": "Advanced AI Suite",
+    "feat_ai_desc": "AI Note Assistant, AI Quiz, Automatic Synopsis, AI Dictionary, and Conversational Web Search.",
+    "feat_media": "Focus Media",
+    "feat_media_desc": "Embed YouTube playlists directly into your reading environment for deep focus.",
+    "upgrade_coming_soon": "Premium Subscriptions Coming Soon",
+    "redeem_hint_modal": "Have a complimentary access code? Redeem it in Settings."
   }
 }

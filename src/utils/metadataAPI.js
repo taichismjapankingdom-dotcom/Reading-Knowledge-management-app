@@ -1,4 +1,5 @@
-import { searchNdl, fetchNdlByIsbn } from './ndlApi';
+import { searchNdl, fetchNdlByIsbn, parseNdlXml } from './ndlApi';
+import { supabase } from '../lib/supabase';
 import localforage from 'localforage';
 
 /**
@@ -127,30 +128,39 @@ export const searchBooks = async (query) => {
     const cached = await metaCache.getItem(cacheKey);
     if (cached) return cached;
 
-    // Parallel search across all providers with increased maxResults
-    const [googleRes, ndlRes] = await Promise.allSettled([
-      fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=40`).then(res => res.json()),
-      searchNdl(query)
-    ]);
+
+    const { data, error } = await supabase.functions.invoke('search-books', {
+      body: { query }
+    });
+
+    if (error || !data) {
+      if (error && error.message.includes('Search limit reached')) {
+        throw new Error('Search limit reached. Please upgrade to Premium.');
+      }
+      throw new Error("Search failed. Please check your network connection.");
+    }
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
     let results = [];
 
-    if (googleRes.status === 'fulfilled' && googleRes.value.items) {
-      results = results.concat(googleRes.value.items.map(normalizeGoogleBooksData));
+    if (data.googleRes && data.googleRes.items) {
+      results = results.concat(data.googleRes.items.map(normalizeGoogleBooksData));
     }
 
-    if (ndlRes.status === 'fulfilled' && ndlRes.value.length > 0) {
-      results = results.concat(ndlRes.value);
+    if (data.ndlXml) {
+      // parseNdlXml relies on DOMParser, so we still do it on the client
+      const ndlItems = parseNdlXml(data.ndlXml);
+      if (ndlItems.length > 0) {
+        results = results.concat(ndlItems);
+      }
     }
 
     results = results.map(r => ({ ...r, author: cleanAuthorString(r.author) }));
-    
     let finalResults = deduplicateAndMerge(results);
-    
-    // Rank candidates aggressively
     finalResults = rankCandidates(query, finalResults);
-    
-    // Clean up internal _score
     finalResults.forEach(r => delete r._score);
 
     if (finalResults.length > 0) {
@@ -160,7 +170,7 @@ export const searchBooks = async (query) => {
     return finalResults;
   } catch (err) {
     console.error("Error in multi-source search:", err);
-    throw new Error("Search failed. Please check your network connection.");
+    throw err;
   }
 };
 
@@ -172,21 +182,30 @@ export const fetchByISBN = async (rawIsbn) => {
     const cached = await metaCache.getItem(cacheKey);
     if (cached) return cached;
 
-    // Parallel fetch
-    const [googleRes, openLibRes, ndlRes] = await Promise.allSettled([
-      fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`).then(res => res.json()),
-      fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`).then(res => res.json()),
-      fetchNdlByIsbn(isbn)
-    ]);
+
+    const { data, error } = await supabase.functions.invoke('search-books', {
+      body: { isbn }
+    });
+
+    if (error || !data) {
+      if (error && error.message.includes('Search limit reached')) {
+        throw new Error('Search limit reached. Please upgrade to Premium.');
+      }
+      throw new Error("Search failed. Please check your network connection.");
+    }
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
     let results = [];
 
-    if (googleRes.status === 'fulfilled' && googleRes.value.items && googleRes.value.items.length > 0) {
-      results.push(normalizeGoogleBooksData(googleRes.value.items[0]));
+    if (data.googleRes && data.googleRes.items && data.googleRes.items.length > 0) {
+      results.push(normalizeGoogleBooksData(data.googleRes.items[0]));
     }
 
-    if (openLibRes.status === 'fulfilled' && openLibRes.value[`ISBN:${isbn}`]) {
-      const olBook = openLibRes.value[`ISBN:${isbn}`];
+    if (data.openLibRes && data.openLibRes[`ISBN:${isbn}`]) {
+      const olBook = data.openLibRes[`ISBN:${isbn}`];
       const coverUrl = olBook.cover ? olBook.cover.large : '';
       results.push({
         id: `ol-${isbn}`,
@@ -204,8 +223,11 @@ export const fetchByISBN = async (rawIsbn) => {
       });
     }
 
-    if (ndlRes.status === 'fulfilled' && ndlRes.value.length > 0) {
-      results.push(ndlRes.value[0]);
+    if (data.ndlXml) {
+      const ndlItems = parseNdlXml(data.ndlXml);
+      if (ndlItems.length > 0) {
+        results.push(ndlItems[0]);
+      }
     }
 
     if (results.length === 0) {
