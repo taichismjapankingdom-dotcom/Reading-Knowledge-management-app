@@ -133,29 +133,25 @@ export const searchBooks = async (query) => {
       body: { query }
     });
 
-    if (error || !data) {
-      if (error && error.message.includes('Search limit reached')) {
-        throw new Error('Search limit reached. Please upgrade to Premium.');
-      }
-      throw new Error("Search failed. Please check your network connection.");
+    const resolveError = (err, respData) => {
+      const msg = err?.message || respData?.error || '';
+      if (msg.includes('Unauthorized')) return new Error('Your session has expired. Please sign in again.');
+      if (msg.includes('Search limit reached')) return new Error('Daily search limit reached. Please upgrade to Premium.');
+      if (msg.includes('providers are currently unavailable')) return new Error('Book providers are temporarily unavailable. Please try again later.');
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return new Error('Network failure. Please check your connection.');
+      return new Error('Search failed. Please try again.');
+    };
+
+    if (error || !data || data.error) {
+      throw resolveError(error, data);
     }
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    let results = [];
+    // Only after authorization and quota consumption succeeds, we natively fetch NDL
+    const ndlItems = await searchNdl(query);
+    let results = [...ndlItems];
 
     if (data.googleRes && data.googleRes.items) {
       results = results.concat(data.googleRes.items.map(normalizeGoogleBooksData));
-    }
-
-    if (data.ndlXml) {
-      // parseNdlXml relies on DOMParser, so we still do it on the client
-      const ndlItems = parseNdlXml(data.ndlXml);
-      if (ndlItems.length > 0) {
-        results = results.concat(ndlItems);
-      }
     }
 
     results = results.map(r => ({ ...r, author: cleanAuthorString(r.author) }));
@@ -187,18 +183,22 @@ export const fetchByISBN = async (rawIsbn) => {
       body: { isbn }
     });
 
-    if (error || !data) {
-      if (error && error.message.includes('Search limit reached')) {
-        throw new Error('Search limit reached. Please upgrade to Premium.');
-      }
-      throw new Error("Search failed. Please check your network connection.");
+    const resolveError = (err, respData) => {
+      const msg = err?.message || respData?.error || '';
+      if (msg.includes('Unauthorized')) return new Error('Your session has expired. Please sign in again.');
+      if (msg.includes('Search limit reached')) return new Error('Daily search limit reached. Please upgrade to Premium.');
+      if (msg.includes('providers are currently unavailable')) return new Error('Book providers are temporarily unavailable. Please try again later.');
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return new Error('Network failure. Please check your connection.');
+      return new Error('Search failed. Please try again.');
+    };
+
+    if (error || !data || data.error) {
+      throw resolveError(error, data);
     }
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    let results = [];
+    // Only after authorization and quota consumption succeeds, we natively fetch NDL
+    const ndlItems = await fetchNdlByIsbn(isbn);
+    let results = [...ndlItems];
 
     if (data.googleRes && data.googleRes.items && data.googleRes.items.length > 0) {
       results.push(normalizeGoogleBooksData(data.googleRes.items[0]));
@@ -221,13 +221,6 @@ export const fetchByISBN = async (rawIsbn) => {
         type: 'learning',
         source: 'OpenLibrary'
       });
-    }
-
-    if (data.ndlXml) {
-      const ndlItems = parseNdlXml(data.ndlXml);
-      if (ndlItems.length > 0) {
-        results.push(ndlItems[0]);
-      }
     }
 
     if (results.length === 0) {

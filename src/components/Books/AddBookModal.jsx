@@ -6,6 +6,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { useTranslation } from 'react-i18next';
 import { useEntitlement } from '../../hooks/useEntitlement';
 import { useBooks } from '../../hooks/useBooks';
+import { PREMIUM_LIMITS } from '../../config/limits';
 import './AddBookModal.css';
 
 export default function AddBookModal({ isOpen, onClose, onAdd }) {
@@ -23,29 +24,38 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
   
   const [searchUsage, setSearchUsage] = useState(0);
 
-  const isLimitReached = !isPremium && books.filter(b => !b.deleted_at).length >= 30;
+  const isLimitReached = !isPremium && books.filter(b => !b.deleted_at).length >= PREMIUM_LIMITS.FREE_MAX_BOOKS;
+
+  const refreshUsage = async () => {
+    if (isPremium) return;
+    try {
+      const { supabase } = await import('../../lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('usage_daily')
+        .select('count')
+        .eq('user_id', session.user.id)
+        .eq('feature', 'book_search')
+        .eq('model', 'none')
+        .eq('day', today)
+        .maybeSingle();
+        
+      if (error) {
+        console.warn('Failed to fetch authoritative usage', error);
+        return;
+      }
+
+      setSearchUsage(data?.count ?? 0);
+    } catch (err) {
+      console.warn("Failed to fetch authoritative usage", err);
+    }
+  };
 
   useEffect(() => {
     if (isOpen && !isPremium) {
-      const fetchUsage = async () => {
-        const { supabase } = await import('../../lib/supabase');
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) return;
-        
-        const today = new Date().toISOString().split('T')[0];
-        const { data } = await supabase
-          .from('usage_daily')
-          .select('count')
-          .eq('user_id', session.user.id)
-          .eq('feature', 'book_search')
-          .eq('day', today)
-          .single();
-          
-        if (data) {
-          setSearchUsage(data.count);
-        }
-      };
-      fetchUsage();
+      refreshUsage();
     }
   }, [isOpen, isPremium]);
 
@@ -76,10 +86,9 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
         const res = await fetchByISBN(query.replace(/-/g, ''));
         setResults([res]);
       }
-      
-      // Increment local usage state if it succeeded (backend handles real enforcement)
+      // Re-fetch authoritative usage state from backend after successful search
       if (!isPremium) {
-        setSearchUsage(prev => prev + 1);
+        await refreshUsage();
       }
     } catch (err) {
       setError(err.message);
@@ -114,7 +123,9 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
           try {
             const res = await fetchByISBN(decodedText);
             setResults([res]);
-            if (!isPremium) setSearchUsage(prev => prev + 1);
+            if (!isPremium) {
+              await refreshUsage();
+            }
           } catch (err) {
             setError(err.message || t('add_book.scan_failed'));
             if (err.message && err.message.includes('Search limit reached')) {
@@ -181,15 +192,15 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                 onChange={(e) => setQuery(e.target.value)}
                 className="glass-input"
               />
-              <button type="submit" className="glass-btn primary" disabled={loading || (!isPremium && searchUsage >= 10)}>
+              <button type="submit" className="glass-btn primary" disabled={loading || (!isPremium && searchUsage >= PREMIUM_LIMITS.FREE_MAX_SEARCHES_PER_DAY)}>
                 {loading ? <Loader2 size={18} className="spin" /> : <Search size={18} />}
               </button>
             </form>
             {!isPremium && (
               <div style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '8px', textAlign: 'right' }}>
-                {searchUsage >= 10 
+                {searchUsage >= PREMIUM_LIMITS.FREE_MAX_SEARCHES_PER_DAY 
                   ? <span style={{ color: '#ff3b30' }}>{t('premium.search_limit_reached', 'Search limit reached today')}</span>
-                  : t('premium.searches_remaining', '{{remaining}} of 10 searches remaining today', { remaining: Math.max(0, 10 - searchUsage) })
+                  : t('premium.searches_remaining', '{{remaining}} of {{max}} searches remaining today', { remaining: Math.max(0, PREMIUM_LIMITS.FREE_MAX_SEARCHES_PER_DAY - searchUsage), max: PREMIUM_LIMITS.FREE_MAX_SEARCHES_PER_DAY })
                 }
               </div>
             )}

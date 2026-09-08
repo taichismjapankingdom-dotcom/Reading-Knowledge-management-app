@@ -7,6 +7,7 @@ import AddBookModal from '../components/Books/AddBookModal';
 import { useBooks, addBookToStore, updateBookStatus } from '../hooks/useBooks';
 import { useTranslation } from 'react-i18next';
 import { useEntitlement } from '../hooks/useEntitlement';
+import { PREMIUM_LIMITS } from '../config/limits';
 import './Bookshelf.css';
 
 const TABS = [
@@ -59,7 +60,7 @@ export default function Bookshelf() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {!isPremium && (
               <span style={{ fontSize: '0.85rem', opacity: 0.7, background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '12px' }}>
-                {books.filter(b => !b.deleted_at).length} / 30 {t('premium.books', 'books')}
+                {books.filter(b => !b.deleted_at).length} / {PREMIUM_LIMITS.FREE_MAX_BOOKS} {t('premium.books', 'books')}
               </span>
             )}
             <button className="glass-btn primary add-book-btn" onClick={() => setIsAddModalOpen(true)}>
