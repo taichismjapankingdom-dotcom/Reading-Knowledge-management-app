@@ -29,10 +29,22 @@ function isUUID(str) {
 export const syncEngine = {
   isSyncing: false,
   isInitializing: false,
+  isLoggingOut: false,
   realtimeChannel: null,
+  activePromises: new Set(),
 
-  async initialize() {
-    if (this.isInitializing) return;
+  trackPromise(promise) {
+    this.activePromises.add(promise);
+    promise.finally(() => this.activePromises.delete(promise));
+    return promise;
+  },
+
+  initialize() {
+    if (this.isInitializing || this.isLoggingOut) return Promise.resolve();
+    return this.trackPromise(this._initialize());
+  },
+
+  async _initialize() {
     this.isInitializing = true;
     
     try {
@@ -161,7 +173,12 @@ export const syncEngine = {
     }
   },
 
-  async reconcileLocalAndCloud() {
+  reconcileLocalAndCloud() {
+    if (this.isLoggingOut) return Promise.resolve();
+    return this.trackPromise(this._reconcileLocalAndCloud());
+  },
+
+  async _reconcileLocalAndCloud() {
     const { data: cloudBooks } = await supabase.from('books').select('*');
     if (!cloudBooks) return;
 
@@ -249,7 +266,12 @@ export const syncEngine = {
     }
   },
 
-  async queueMutation(table, action, payload, id) {
+  queueMutation(table, action, payload, id) {
+    if (this.isLoggingOut) return Promise.resolve();
+    return this.trackPromise(this._queueMutation(table, action, payload, id));
+  },
+
+  async _queueMutation(table, action, payload, id) {
     const timestamp = new Date().toISOString();
     const mutation = { table, action, payload, id, timestamp };
     
@@ -264,7 +286,12 @@ export const syncEngine = {
     }
   },
 
-  async syncUp() {
+  syncUp() {
+    if (this.isLoggingOut) return Promise.resolve();
+    return this.trackPromise(this._syncUp());
+  },
+
+  async _syncUp() {
     if (this.isSyncing || !navigator.onLine) return;
     
     const { data: { session } } = await supabase.auth.getSession();
@@ -404,7 +431,12 @@ export const syncEngine = {
     }
   },
 
-  async syncDown() {
+  syncDown() {
+    if (this.isLoggingOut) return Promise.resolve();
+    return this.trackPromise(this._syncDown());
+  },
+
+  async _syncDown() {
     if (!navigator.onLine) return;
     
     const { data: { session } } = await supabase.auth.getSession();
@@ -494,6 +526,7 @@ export const syncEngine = {
   },
 
   startRealtime() {
+    if (this.isLoggingOut) return;
     if (this.realtimeChannel) return;
 
     this.realtimeChannel = supabase.channel('sync-engine')
@@ -573,6 +606,57 @@ export const syncEngine = {
       });
   },
   
+  async clearAccountLocalState() {
+    console.log('[SyncEngine] Halting sync and clearing local account state...');
+    this.isLoggingOut = true;
+    this.stopRealtime();
+    
+    // 1. Wait for any in-flight sync promises to complete safely, with timeout
+    const drainPromise = async () => {
+      while (this.activePromises.size > 0) {
+        console.log(`[SyncEngine] Waiting for ${this.activePromises.size} active sync operations to drain...`);
+        await Promise.allSettled(Array.from(this.activePromises));
+      }
+    };
+
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("SYNC_DRAIN_TIMEOUT")), 5000);
+      drainPromise().then(() => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
+
+    // 2. Wipe IndexedDB account state using exact stores
+    await localforage.clear(); // default store (books, entitlements, migration flags)
+    await outboxStore.clear();
+    await metadataStore.clear();
+    await notesStore.clear();
+    await conflictsStore.clear();
+    
+    // 3. Clear the metadata API cache instance to be fully pristine
+    const metaCache = localforage.createInstance({ name: 'ReadingKnowledgeApp', storeName: 'metaCache' });
+    await metaCache.clear();
+    
+    console.log('[SyncEngine] Local account state cleared successfully.');
+  },
+
+  async resumeSync() {
+    console.log('[SyncEngine] Resuming normal operations after aborted logout.');
+    this.isLoggingOut = false;
+    
+    // If we aborted due to timeout, the old promises are still running.
+    // Defer restart until they naturally settle and release their own mutexes in their finally blocks.
+    if (this.activePromises.size > 0) {
+      console.log(`[SyncEngine] Deferring restart until ${this.activePromises.size} stalled operations finish naturally...`);
+      await Promise.allSettled(Array.from(this.activePromises));
+    }
+
+    this.startRealtime();
+    this.syncUp();
+    this.syncDown();
+  },
+
   stopRealtime() {
     if (this.realtimeChannel) {
       supabase.removeChannel(this.realtimeChannel);

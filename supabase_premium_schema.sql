@@ -157,6 +157,7 @@ CREATE TABLE IF NOT EXISTS public.premium_access_codes (
   grant_duration_days INT CHECK (grant_duration_days > 0), -- NULL means non-expiring/lifetime access
   redeemable_until TIMESTAMPTZ, -- The deadline by which the code must be entered
   is_active BOOLEAN NOT NULL DEFAULT true,
+  allocated_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE, -- NULL for general codes, set for personal codes
   created_at TIMESTAMPTZ DEFAULT now(),
   created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
 );
@@ -264,6 +265,7 @@ BEGIN
     AND is_active = true 
     AND (redeemable_until IS NULL OR redeemable_until > now())
     AND current_redemptions < max_redemptions
+    AND (allocated_user_id IS NULL OR allocated_user_id = target_user_id)
   FOR UPDATE; 
 
   IF NOT FOUND THEN

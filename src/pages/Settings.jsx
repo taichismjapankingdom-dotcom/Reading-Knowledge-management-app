@@ -418,7 +418,29 @@ export default function Settings() {
               className="glass-btn" 
               style={{ marginTop: '12px', color: '#ff3b30' }}
               onClick={async () => {
-                await supabase.auth.signOut();
+                const { syncEngine } = await import('../lib/syncEngine');
+                try {
+                  await syncEngine.clearAccountLocalState();
+                } catch (e) {
+                  syncEngine.resumeSync();
+                  if (e.message === 'SYNC_DRAIN_TIMEOUT') {
+                    alert(t('settings.logout_timeout', 'Unable to safely finish synchronization. Please try logging out again.'));
+                  } else {
+                    alert(t('settings.logout_failed', 'Failed to safely clear local session data. Logout aborted to prevent data mixing.'));
+                  }
+                  console.error('Logout cleanup failed:', e);
+                  return; // abort logout to prevent contamination
+                }
+                
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                  // If Supabase API fails, the local DB was wiped but we are still logged in.
+                  // Resuming sync will safely redownload the user's data from cloud and restore state!
+                  syncEngine.resumeSync();
+                  alert(t('settings.logout_server_error', 'Server error during sign out. Please check your connection.'));
+                  return;
+                }
+                
                 window.location.reload();
               }}
             >
