@@ -256,7 +256,7 @@ BEGIN
   END IF;
 
   -- Hash the incoming plaintext code (SHA256) so we never compare plaintext in the DB
-  computed_hash := encode(digest(plaintext_code, 'sha256'), 'hex');
+  computed_hash := encode(extensions.digest(plaintext_code, 'sha256'), 'hex');
 
   -- Find matching active code and LOCK IT to prevent concurrent over-redemption race conditions
   SELECT * INTO target_code 
