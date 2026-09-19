@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useEntitlement } from '../../hooks/useEntitlement';
 import { Sparkles, Key, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import localforage from 'localforage';
 
 export default function PremiumSettings() {
   const { t } = useTranslation();
@@ -23,12 +24,30 @@ export default function PremiumSettings() {
         body: { code: code.trim() }
       });
 
-      if (error || !data || !data.success) {
-        throw new Error(data?.error || error?.message || t('premium.invalid_code', 'This Premium access code is invalid or unavailable.'));
+      if (error) {
+        let extractedError = t('premium.invalid_code', 'This Premium access code is invalid or unavailable.');
+        // Safely extract the JSON body if this is a FunctionsHttpError
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const errData = await error.context.json();
+            if (errData?.error) extractedError = errData.error;
+          } catch (jsonErr) {}
+        } else if (error.message && !error.message.includes('non-2xx')) {
+          extractedError = error.message;
+        }
+        throw new Error(extractedError);
+      }
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || t('premium.invalid_code', 'This Premium access code is invalid or unavailable.'));
       }
 
       setMessage({ type: 'success', text: t('premium.redeem_success', 'Code successfully redeemed! You now have Premium access.') });
       setCode('');
+      
+      // Clear the stale entitlement cache before reloading
+      await localforage.removeItem('premium_entitlements');
+
       // Slight delay to allow backend changes to settle, then reload to refresh entitlements globally
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
