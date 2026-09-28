@@ -1,0 +1,13 @@
+{
+  "id": "qa_insufficient",
+  "language": "en",
+  "type": "grounded_qa",
+  "knowledge_chunks": [
+    {
+      "id": "doc_x",
+      "text": "Photosynthesis requires sunlight, water, and carbon dioxide."
+    }
+  ],
+  "question": "What is the specific chemical formula for glucose produced in photosynthesis?",
+  "expected_citations": []
+}

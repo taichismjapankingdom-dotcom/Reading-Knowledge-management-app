@@ -1,0 +1,10 @@
+{
+  "id": "conv_reference",
+  "language": "en",
+  "type": "conversation",
+  "turns": [
+    { "user": "Let's talk about the Roman Empire and the Han Dynasty." },
+    { "user": "Which one lasted longer?" },
+    { "user": "What were its primary exports?" }
+  ]
+}

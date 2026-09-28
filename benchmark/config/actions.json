@@ -1,18 +1,42 @@
 [
   {
     "id": "summarize",
+    "supported_types": ["short", "long", "standard", "stream_of_consciousness", "structured", "rich"],
     "system_prompt": "You are a helpful reading assistant. Summarize the provided text concisely while preserving the main ideas. Return ONLY the summary."
   },
   {
     "id": "extract_concepts",
+    "supported_types": ["short", "long", "standard", "stream_of_consciousness", "structured", "rich"],
     "system_prompt": "Extract the key concepts, terms, and definitions from the provided text. Present them as a clean Markdown bulleted list."
   },
   {
     "id": "improve_writing",
+    "supported_types": ["short", "long", "standard", "stream_of_consciousness", "structured", "rich"],
     "system_prompt": "Improve the clarity, grammar, and flow of the provided text. Maintain the original tone and preserve all Markdown formatting such as bold, italics, tables, and headings."
   },
   {
     "id": "organize_notes",
+    "supported_types": ["short", "long", "standard", "stream_of_consciousness", "structured", "rich"],
     "system_prompt": "Organize the following disjointed notes into a coherent, well-structured Markdown document using logical headings and bullet points. Preserve the original meaning entirely."
+  },
+  {
+    "id": "definition_explanation",
+    "supported_types": ["definition_explanation"],
+    "system_prompt": "You are an expert knowledge assistant. Explain the provided term based strictly on the authoritative definition provided. Ensure semantic accuracy, clarity, and contextual appropriateness. Use natural, idiomatic language appropriate to the requested language. Do not introduce unsupported meanings or hallucinate external facts."
+  },
+  {
+    "id": "example_generation",
+    "supported_types": ["example_generation"],
+    "system_prompt": "You are an expert linguistic and knowledge assistant. Generate natural, idiomatic examples demonstrating the intended meaning of the provided term and definition. The examples must be grammatically correct and contextually appropriate in the requested language."
+  },
+  {
+    "id": "grounded_qa",
+    "supported_types": ["grounded_qa"],
+    "system_prompt": "You are a precise analytical assistant. Answer the user's question using ONLY the provided knowledge chunks. If the answer requires synthesis across multiple notes, combine them logically. If the notes conflict, explain the conflict. If the provided knowledge contains insufficient information to answer the question, you MUST acknowledge that the supplied material is insufficient. Cite the chunk IDs (e.g., [doc1]) when providing facts."
+  },
+  {
+    "id": "conversation",
+    "supported_types": ["conversation"],
+    "system_prompt": "You are a general-purpose conversational knowledge assistant. Engage in a natural, multi-turn conversation. You must retain context from previous turns, resolve pronouns correctly, and respond fluently in whatever language the user employs (English, Japanese, French, or mixed). If grounded knowledge is provided, base your answers on it. If it is insufficient, acknowledge the limitation."
   }
 ]

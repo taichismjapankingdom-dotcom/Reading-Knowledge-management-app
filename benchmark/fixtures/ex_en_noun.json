@@ -1,0 +1,8 @@
+{
+  "id": "ex_en_noun",
+  "type": "example_generation",
+  "language": "en",
+  "term": "Serendipity",
+  "part_of_speech": "noun",
+  "intended_sense": "The occurrence and development of events by chance in a happy or beneficial way."
+}

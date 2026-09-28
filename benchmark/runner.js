@@ -4,15 +4,16 @@ const path = require('path');
 const yaml = require('js-yaml');
 const { v4: uuidv4 } = require('uuid');
 
+// CLI Arguments
+const args = process.argv.slice(2);
+const actionArgIndex = args.indexOf('--action');
+const targetAction = actionArgIndex > -1 ? args[actionArgIndex + 1] : null;
+
 // Import Adapters
 const OpenAIAdapter = require('./providers/openai');
-// const AnthropicAdapter = require('./providers/anthropic'); // Add when implemented
-// const GoogleAdapter = require('./providers/google'); // Add when implemented
 
 const adapters = [
   new OpenAIAdapter(),
-  // new AnthropicAdapter(),
-  // new GoogleAdapter()
 ];
 
 function loadJson(relPath) {
@@ -21,19 +22,24 @@ function loadJson(relPath) {
 
 function loadFixtures() {
   const fixturesDir = path.join(__dirname, 'fixtures');
-  const files = fs.readdirSync(fixturesDir).filter(f => f.endsWith('.md'));
+  const files = fs.readdirSync(fixturesDir);
   
   return files.map(file => {
     const raw = fs.readFileSync(path.join(fixturesDir, file), 'utf8');
-    // Simple frontmatter parsing
-    const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-    if (!match) {
-      throw new Error(`Invalid fixture format in ${file}`);
+    if (file.endsWith('.json')) {
+      return { ...JSON.parse(raw), filename: file };
+    } else if (file.endsWith('.md')) {
+      const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+      if (!match) {
+        console.warn(`[WARN] Invalid fixture format in ${file}`);
+        return null;
+      }
+      const meta = yaml.load(match[1]);
+      const content = match[2].trim();
+      return { ...meta, content, filename: file };
     }
-    const meta = yaml.load(match[1]);
-    const content = match[2].trim();
-    return { ...meta, content, filename: file };
-  });
+    return null;
+  }).filter(Boolean);
 }
 
 function getAdapter(providerId) {
@@ -48,14 +54,50 @@ function calculateCost(inputTokens, outputTokens, modelConfig) {
          (outputTokens / 1000000 * modelConfig.output_price_per_m);
 }
 
+function getEvalColumns(actionId, fixtureType) {
+  const allCols = [
+    'instruction_following_1_5', 'content_preservation_1_5', 'markdown_preservation_1_5',
+    'writing_quality_1_5', 'usefulness_1_5', 'groundedness_1_5', 'factual_faithfulness_1_5',
+    'citation_correctness_1_5', 'naturalness_1_5', 'clarity_1_5', 'semantic_consistency_1_5',
+    'context_retention_1_5'
+  ];
+  
+  let activeCols = [];
+  if (['summarize', 'extract_concepts', 'improve_writing', 'organize_notes'].includes(actionId)) {
+    activeCols = ['instruction_following_1_5', 'content_preservation_1_5', 'markdown_preservation_1_5', 'writing_quality_1_5', 'usefulness_1_5'];
+  } else if (actionId === 'definition_explanation') {
+    activeCols = ['factual_faithfulness_1_5', 'semantic_consistency_1_5', 'naturalness_1_5', 'clarity_1_5'];
+  } else if (actionId === 'example_generation') {
+    activeCols = ['naturalness_1_5', 'semantic_consistency_1_5', 'writing_quality_1_5', 'usefulness_1_5'];
+  } else if (actionId === 'grounded_qa') {
+    activeCols = ['groundedness_1_5', 'factual_faithfulness_1_5', 'citation_correctness_1_5', 'usefulness_1_5'];
+  } else if (actionId === 'conversation') {
+    activeCols = ['instruction_following_1_5', 'context_retention_1_5', 'naturalness_1_5', 'usefulness_1_5'];
+    if (fixtureType === 'grounded') {
+      activeCols.push('groundedness_1_5', 'citation_correctness_1_5');
+    }
+  }
+
+  return allCols.map(c => activeCols.includes(c) ? '' : 'N/A');
+}
+
 async function run() {
   console.log("Starting ReadMind Provider-Neutral Benchmark Harness...\n");
+  if (targetAction) console.log(`[FILTER] Running only action: ${targetAction}\n`);
 
   const models = loadJson('config/models.json');
-  const actions = loadJson('config/actions.json');
+  let actions = loadJson('config/actions.json');
+  
+  if (targetAction) {
+    actions = actions.filter(a => a.id === targetAction);
+    if (actions.length === 0) {
+      console.error(`Error: Action '${targetAction}' not found in actions.json`);
+      process.exit(1);
+    }
+  }
+
   const fixtures = loadFixtures();
 
-  // Create randomized candidate IDs for blind evaluation
   const candidateMap = {};
   const reversedCandidateMap = {};
   models.forEach((m, idx) => {
@@ -87,6 +129,8 @@ async function run() {
 
     for (const action of actions) {
       for (const fixture of fixtures) {
+        if (!action.supported_types.includes(fixture.type)) continue;
+
         console.log(`  -> Action: ${action.id} | Fixture: ${fixture.id}`);
         const runId = uuidv4();
         
@@ -94,33 +138,99 @@ async function run() {
         let outputTokens = null;
         let success = false;
         let errorMsg = null;
-        let generatedText = null;
+        let generatedText = '';
         let ttftMs = null;
-        let totalLatencyMs = null;
+        let totalLatencyMs = 0;
+        let estimatedCost = 0;
+        const perTurnMetrics = [];
 
         try {
-          // Explicit token counting without arbitrary fallback
-          try {
-            const systemTokens = await adapter.countTokens(action.system_prompt, modelConfig.model);
-            const contentTokens = await adapter.countTokens(fixture.content, modelConfig.model);
-            if (systemTokens !== null && contentTokens !== null) {
-              inputTokens = systemTokens + contentTokens;
-            } else {
-              console.warn(`    [WARN] Token counting unavailable for model ${modelConfig.model}. Cost estimation will be null.`);
-            }
-          } catch (e) {
-             console.warn(`    [WARN] Token counting failed for ${modelConfig.model}: ${e.message}`);
-          }
+          if (fixture.type === 'conversation') {
+            const history = [];
+            let aggInput = 0, aggOutput = 0, aggLatency = 0, aggCost = 0;
+            
+            for (let i = 0; i < fixture.turns.length; i++) {
+              const turn = fixture.turns[i];
+              history.push({ role: 'user', content: turn.user });
+              
+              let systemPrompt = action.system_prompt;
+              if (fixture.knowledge_context) {
+                // Ensure expected_citations are stripped out
+                const safeContext = fixture.knowledge_context.map(k => ({ id: k.id, text: k.text }));
+                systemPrompt += "\n\nKnowledge Context:\n" + JSON.stringify(safeContext, null, 2);
+              }
 
-          // Execute Stream (Dry run fallback handled by adapter if keys missing)
-          const res = await adapter.generateStream(action.system_prompt, fixture.content, modelConfig.model);
-          
-          generatedText = res.generatedText;
-          ttftMs = res.ttftMs;
-          totalLatencyMs = res.totalLatencyMs;
-          
-          if (res.inputTokens !== null) inputTokens = res.inputTokens; 
-          if (res.outputTokens !== null) outputTokens = res.outputTokens;
+              let currentInputTokens = null, currentOutputTokens = null;
+              try {
+                 const turnTokens = await adapter.countTokens(JSON.stringify(history), modelConfig.model);
+                 if (turnTokens !== null) currentInputTokens = turnTokens;
+              } catch (e) {
+                 if (i===0) console.warn(`    [WARN] Token counting unavailable/failed for model ${modelConfig.model}.`);
+              }
+
+              const res = await adapter.generateStream(systemPrompt, history, modelConfig.model);
+              history.push({ role: 'assistant', content: res.generatedText });
+              
+              if (res.inputTokens !== null) currentInputTokens = res.inputTokens; 
+              if (res.outputTokens !== null) currentOutputTokens = res.outputTokens;
+              
+              if (i === 0) ttftMs = res.ttftMs;
+              
+              const turnCost = calculateCost(currentInputTokens, currentOutputTokens, modelConfig) || 0;
+              
+              aggInput += currentInputTokens || 0;
+              aggOutput += currentOutputTokens || 0;
+              aggLatency += res.totalLatencyMs || 0;
+              aggCost += turnCost;
+              
+              perTurnMetrics.push({
+                turn: i + 1,
+                inputTokens: currentInputTokens,
+                outputTokens: currentOutputTokens,
+                ttftMs: res.ttftMs,
+                totalLatencyMs: res.totalLatencyMs,
+                estimatedCost: turnCost
+              });
+
+              generatedText += `[User]: ${turn.user}\n[AI]: ${res.generatedText}\n\n`;
+            }
+            
+            inputTokens = aggInput;
+            outputTokens = aggOutput;
+            totalLatencyMs = aggLatency;
+            estimatedCost = aggCost;
+
+          } else {
+            // Standard single-turn execution. Remove expected_citations to prevent leaking to model.
+            const safeFixture = { ...fixture };
+            delete safeFixture.expected_citations;
+            delete safeFixture.filename;
+            
+            const payload = fixture.content ? fixture.content : JSON.stringify(safeFixture, null, 2);
+            
+            try {
+              const sysTokens = await adapter.countTokens(action.system_prompt, modelConfig.model);
+              const conTokens = await adapter.countTokens(payload, modelConfig.model);
+              if (sysTokens !== null && conTokens !== null) {
+                inputTokens = sysTokens + conTokens;
+              } else {
+                console.warn(`    [WARN] Token counting unavailable for model ${modelConfig.model}. Cost estimation will be null.`);
+              }
+            } catch (e) {
+               console.warn(`    [WARN] Token counting failed for ${modelConfig.model}: ${e.message}`);
+            }
+
+            const res = await adapter.generateStream(action.system_prompt, payload, modelConfig.model);
+            
+            generatedText = res.generatedText;
+            ttftMs = res.ttftMs;
+            totalLatencyMs = res.totalLatencyMs;
+            
+            if (res.inputTokens !== null) inputTokens = res.inputTokens; 
+            if (res.outputTokens !== null) outputTokens = res.outputTokens;
+            
+            estimatedCost = calculateCost(inputTokens, outputTokens, modelConfig) || 0;
+          }
           
           success = true;
         } catch (err) {
@@ -128,8 +238,6 @@ async function run() {
           errorMsg = err.message;
           console.error(`    [ERROR] ${err.message}`);
         }
-
-        const estimatedCost = calculateCost(inputTokens, outputTokens, modelConfig);
 
         results.push({
           run_id: runId,
@@ -142,44 +250,33 @@ async function run() {
           time_to_first_token_ms: ttftMs,
           total_latency_ms: totalLatencyMs,
           estimated_cost_usd: estimatedCost,
+          per_turn_metrics: perTurnMetrics.length > 0 ? perTurnMetrics : undefined,
           success,
           error: errorMsg,
           generated_text: generatedText,
-          // Snapshot pricing to keep historical data immutable
           pricing_snapshot: { ...modelConfig }
         });
 
-        // Add to human blind-eval sheet
-        evalRows.push({
-          run_id: runId,
-          candidate_id: candidateId,
-          action: action.id,
-          fixture: fixture.id,
-          instruction_following_1_5: '',
-          content_preservation_1_5: '',
-          markdown_preservation_1_5: '',
-          writing_quality_1_5: '',
-          usefulness_1_5: '',
-          notes: ''
-        });
+        const isGroundedConv = fixture.type === 'conversation' && !!fixture.knowledge_context;
+        const evalCols = getEvalColumns(action.id, isGroundedConv ? 'grounded' : 'standard');
+        
+        evalRows.push([
+          runId, candidateId, action.id, fixture.id, ...evalCols, '' 
+        ].join(','));
       }
     }
   }
 
-  // Write Results
   const resultsDir = path.join(__dirname, 'results');
   if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir);
 
   const resultsFile = path.join(resultsDir, `run_${runTimestamp}.json`);
   fs.writeFileSync(resultsFile, JSON.stringify(results, null, 2));
 
-  // Write Eval CSV
   const csvFile = path.join(resultsDir, `eval_${runTimestamp}.csv`);
-  const csvHeader = 'run_id,candidate_id,action,fixture,instruction_following_1_5,content_preservation_1_5,markdown_preservation_1_5,writing_quality_1_5,usefulness_1_5,notes\n';
-  const csvBody = evalRows.map(r => `${r.run_id},${r.candidate_id},${r.action},${r.fixture},,,,,,`).join('\n');
-  fs.writeFileSync(csvFile, csvHeader + csvBody);
+  const csvHeader = 'run_id,candidate_id,action,fixture,instruction_following_1_5,content_preservation_1_5,markdown_preservation_1_5,writing_quality_1_5,usefulness_1_5,groundedness_1_5,factual_faithfulness_1_5,citation_correctness_1_5,naturalness_1_5,clarity_1_5,semantic_consistency_1_5,context_retention_1_5,notes\n';
+  fs.writeFileSync(csvFile, csvHeader + evalRows.join('\n'));
 
-  // Write Mapping JSON (Keep this secret until scoring is done)
   const mapFile = path.join(resultsDir, `mapping_${runTimestamp}.json`);
   fs.writeFileSync(mapFile, JSON.stringify(candidateMap, null, 2));
 

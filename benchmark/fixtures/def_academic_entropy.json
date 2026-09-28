@@ -1,0 +1,8 @@
+{
+  "id": "def_academic_entropy",
+  "type": "definition_explanation",
+  "language": "en",
+  "term": "Entropy",
+  "authoritative_definition": "A measure of the unavailability of a system's thermal energy for conversion into mechanical work, often interpreted as the degree of disorder or randomness in the system.",
+  "optional_context": "Physics and thermodynamics context."
+}

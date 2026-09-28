@@ -1,0 +1,21 @@
+{
+  "id": "qa_synthesis",
+  "language": "en",
+  "type": "grounded_qa",
+  "knowledge_chunks": [
+    {
+      "id": "doc1",
+      "text": "In 1999, the Mars Climate Orbiter was lost due to a navigation error."
+    },
+    {
+      "id": "doc2",
+      "text": "The navigation error occurred because one team used metric units (newtons) while another used imperial units (pound-seconds)."
+    },
+    {
+      "id": "doc3",
+      "text": "The spacecraft cost approximately $327 million and its mission was to study the Martian climate."
+    }
+  ],
+  "question": "What caused the loss of the Mars Climate Orbiter and how much did it cost?",
+  "expected_citations": ["doc1", "doc2", "doc3"]
+}

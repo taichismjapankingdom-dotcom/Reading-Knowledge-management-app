@@ -1,0 +1,16 @@
+{
+  "id": "conv_insufficient",
+  "language": "en",
+  "type": "conversation",
+  "knowledge_context": [
+    {
+      "id": "doc_x",
+      "text": "The company's new policy allows remote work for up to 3 days a week."
+    }
+  ],
+  "turns": [
+    { "user": "Does the company allow remote work?" },
+    { "user": "How many days?" },
+    { "user": "Which specific days of the week are allowed?" }
+  ]
+}

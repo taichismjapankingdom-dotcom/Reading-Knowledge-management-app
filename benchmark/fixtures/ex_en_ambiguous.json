@@ -1,0 +1,9 @@
+{
+  "id": "ex_en_ambiguous",
+  "type": "example_generation",
+  "language": "en",
+  "term": "Draft",
+  "part_of_speech": "noun",
+  "intended_sense": "A current of uncomfortably cold air blowing through a room or confined space.",
+  "optional_context": "Not related to writing, sports, or military."
+}

@@ -1,0 +1,8 @@
+{
+  "id": "ex_jp_tsundoku",
+  "type": "example_generation",
+  "language": "jp",
+  "term": "積ん読 (Tsundoku)",
+  "part_of_speech": "noun",
+  "intended_sense": "The phenomenon of acquiring reading materials but letting them pile up in one's home without reading them."
+}

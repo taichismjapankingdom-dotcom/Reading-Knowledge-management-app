@@ -1,0 +1,8 @@
+{
+  "id": "ex_en_verb",
+  "type": "example_generation",
+  "language": "en",
+  "term": "Mitigate",
+  "part_of_speech": "verb",
+  "intended_sense": "Make less severe, serious, or painful."
+}

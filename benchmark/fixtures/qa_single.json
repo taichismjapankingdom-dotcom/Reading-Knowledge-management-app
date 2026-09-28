@@ -1,0 +1,17 @@
+{
+  "id": "qa_single",
+  "language": "en",
+  "type": "grounded_qa",
+  "knowledge_chunks": [
+    {
+      "id": "doc_a",
+      "text": "The fastest land animal is the cheetah, capable of reaching speeds up to 75 mph."
+    },
+    {
+      "id": "doc_b",
+      "text": "The peregrine falcon is the fastest bird, diving at speeds over 240 mph."
+    }
+  ],
+  "question": "What is the top speed of a cheetah?",
+  "expected_citations": ["doc_a"]
+}

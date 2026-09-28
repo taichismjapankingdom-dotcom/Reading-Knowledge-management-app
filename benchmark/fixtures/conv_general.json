@@ -1,0 +1,10 @@
+{
+  "id": "conv_general",
+  "language": "en",
+  "type": "conversation",
+  "turns": [
+    { "user": "I am looking for a book recommendation." },
+    { "user": "I like science fiction, especially hard sci-fi with realistic physics." },
+    { "user": "Can you give me a summary of the second one you mentioned?" }
+  ]
+}

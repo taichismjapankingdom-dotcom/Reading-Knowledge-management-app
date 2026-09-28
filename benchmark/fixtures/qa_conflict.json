@@ -1,0 +1,17 @@
+{
+  "id": "qa_conflict",
+  "language": "en",
+  "type": "grounded_qa",
+  "knowledge_chunks": [
+    {
+      "id": "doc_1",
+      "text": "The company's Q3 revenue was reported as $4.2 million in the initial press release."
+    },
+    {
+      "id": "doc_2",
+      "text": "The final audited Q3 earnings report stated the revenue was actually $3.8 million due to a counting error."
+    }
+  ],
+  "question": "What was the company's Q3 revenue?",
+  "expected_citations": ["doc_1", "doc_2"]
+}

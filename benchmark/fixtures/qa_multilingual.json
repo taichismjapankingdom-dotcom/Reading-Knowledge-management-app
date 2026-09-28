@@ -1,0 +1,17 @@
+{
+  "id": "qa_multilingual",
+  "language": "mixed",
+  "type": "grounded_qa",
+  "knowledge_chunks": [
+    {
+      "id": "doc_fr",
+      "text": "Le Louvre a accueilli plus de 8,9 millions de visiteurs en 2023."
+    },
+    {
+      "id": "doc_jp",
+      "text": "2023年、ルーヴル美術館の最も人気のある作品はモナ・リザでした。"
+    }
+  ],
+  "question": "How many people visited the Louvre in 2023, and what was the most popular artwork?",
+  "expected_citations": ["doc_fr", "doc_jp"]
+}

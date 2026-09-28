@@ -1,0 +1,20 @@
+{
+  "id": "conv_grounded",
+  "language": "en",
+  "type": "conversation",
+  "knowledge_context": [
+    {
+      "id": "doc_alpha",
+      "text": "Project Alpha aims to reduce server latency by 50% using Edge Functions."
+    },
+    {
+      "id": "doc_beta",
+      "text": "Project Beta focuses on redesigning the mobile UI for better accessibility."
+    }
+  ],
+  "turns": [
+    { "user": "Can you summarize Project Alpha?" },
+    { "user": "Does it mention anything about its budget?" },
+    { "user": "What about the other project, what is its goal?" }
+  ]
+}

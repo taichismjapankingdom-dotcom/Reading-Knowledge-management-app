@@ -39,7 +39,7 @@ class BaseProviderAdapter {
   /**
    * Execute the generation request and record latency.
    * @param {string} systemPrompt 
-   * @param {string} userContent 
+   * @param {string|Array<{role: string, content: string}>} userContent - String for normal tasks, Array for conversations
    * @param {string} modelId 
    * @returns {Promise<{ generatedText: string, ttftMs: number, totalLatencyMs: number, inputTokens: number|null, outputTokens: number|null }>}
    */

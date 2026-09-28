@@ -1,0 +1,16 @@
+{
+  "id": "qa_conflict_insufficient",
+  "language": "en",
+  "type": "grounded_qa",
+  "knowledge_chunks": [
+    {
+      "id": "doc1",
+      "text": "Some historians argue that the library of Alexandria was destroyed by Julius Caesar in 48 BC."
+    },
+    {
+      "id": "doc2",
+      "text": "Other records suggest the library of Alexandria survived until the reign of Aurelian in 270 AD."
+    }
+  ],
+  "question": "What exact year was the library of Alexandria destroyed, and who was the head librarian at the time?"
+}

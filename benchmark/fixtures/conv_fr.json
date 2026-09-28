@@ -1,0 +1,10 @@
+{
+  "id": "conv_fr",
+  "language": "fr",
+  "type": "conversation",
+  "turns": [
+    { "user": "J'aimerais comprendre la philosophie existentialiste." },
+    { "user": "Quels sont les concepts clés de Jean-Paul Sartre ?" },
+    { "user": "Pouvez-vous expliquer « la mauvaise foi » plus en détail ?" }
+  ]
+}

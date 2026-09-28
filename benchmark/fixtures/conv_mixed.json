@@ -1,0 +1,10 @@
+{
+  "id": "conv_mixed",
+  "language": "mixed",
+  "type": "conversation",
+  "turns": [
+    { "user": "I am reading about the French Revolution and the Meiji Restoration." },
+    { "user": "Quelles ont été les principales causes économiques de la première ?" },
+    { "user": "あの二つの出来事に共通する「古い体制の崩壊」という点について、どう思いますか？" }
+  ]
+}
