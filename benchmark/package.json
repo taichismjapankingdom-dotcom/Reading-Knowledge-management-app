@@ -1,0 +1,14 @@
+{
+  "name": "readmind-ai-benchmark",
+  "version": "1.0.0",
+  "description": "Provider-neutral benchmark harness for AI features",
+  "main": "runner.js",
+  "scripts": {
+    "start": "node runner.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.0",
+    "uuid": "^10.0.0"
+  }
+}

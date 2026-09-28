@@ -1,0 +1,18 @@
+[
+  {
+    "id": "summarize",
+    "system_prompt": "You are a helpful reading assistant. Summarize the provided text concisely while preserving the main ideas. Return ONLY the summary."
+  },
+  {
+    "id": "extract_concepts",
+    "system_prompt": "Extract the key concepts, terms, and definitions from the provided text. Present them as a clean Markdown bulleted list."
+  },
+  {
+    "id": "improve_writing",
+    "system_prompt": "Improve the clarity, grammar, and flow of the provided text. Maintain the original tone and preserve all Markdown formatting such as bold, italics, tables, and headings."
+  },
+  {
+    "id": "organize_notes",
+    "system_prompt": "Organize the following disjointed notes into a coherent, well-structured Markdown document using logical headings and bullet points. Preserve the original meaning entirely."
+  }
+]

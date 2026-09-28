@@ -1,0 +1,52 @@
+[
+  {
+    "_comment": "EXAMPLE PLACEHOLDER ONLY. Verify actual pricing/models before production.",
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5-example",
+    "input_price_per_m": 1.00,
+    "output_price_per_m": 5.00,
+    "currency": "USD",
+    "pricing_effective_date": "2026-09-01",
+    "pricing_source": "https://anthropic.com/pricing"
+  },
+  {
+    "_comment": "EXAMPLE PLACEHOLDER ONLY. Verify actual pricing/models before production.",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-example",
+    "input_price_per_m": 2.00,
+    "output_price_per_m": 10.00,
+    "currency": "USD",
+    "pricing_effective_date": "2026-09-01",
+    "pricing_source": "https://anthropic.com/pricing"
+  },
+  {
+    "_comment": "EXAMPLE PLACEHOLDER ONLY. Verify actual pricing/models before production.",
+    "provider": "openai",
+    "model": "gpt-6-luna-example",
+    "input_price_per_m": 0.10,
+    "output_price_per_m": 0.50,
+    "currency": "USD",
+    "pricing_effective_date": "2026-09-01",
+    "pricing_source": "https://openai.com/api/pricing/"
+  },
+  {
+    "_comment": "EXAMPLE PLACEHOLDER ONLY. Verify actual pricing/models before production.",
+    "provider": "openai",
+    "model": "gpt-6-sol-example",
+    "input_price_per_m": 2.00,
+    "output_price_per_m": 10.00,
+    "currency": "USD",
+    "pricing_effective_date": "2026-09-01",
+    "pricing_source": "https://openai.com/api/pricing/"
+  },
+  {
+    "_comment": "EXAMPLE PLACEHOLDER ONLY. Verify actual pricing/models before production.",
+    "provider": "google",
+    "model": "gemini-3.1-flash-lite-example",
+    "input_price_per_m": 0.25,
+    "output_price_per_m": 1.50,
+    "currency": "USD",
+    "pricing_effective_date": "2026-09-01",
+    "pricing_source": "https://ai.google.dev/pricing"
+  }
+]
